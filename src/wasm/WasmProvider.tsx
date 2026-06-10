@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useEffect, useState,
+  createContext, useEffect, useState,
   Component, type ReactNode, type ErrorInfo,
 } from 'react';
 import type { PeriodicTable, WasmElement } from '@periodic-table';

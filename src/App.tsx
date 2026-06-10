@@ -1,9 +1,13 @@
 import { WasmProvider } from './wasm/WasmProvider';
+import { IonicCanvasProvider } from './canvas/IonicCanvasProvider';
+import { IonicCanvas } from './canvas/IonicCanvas';
 
 export default function App() {
   return (
     <WasmProvider>
-      <div className="p-4 text-white">Ionic Canvas — coming soon</div>
+      <IonicCanvasProvider>
+        <IonicCanvas />
+      </IonicCanvasProvider>
     </WasmProvider>
   );
 }
