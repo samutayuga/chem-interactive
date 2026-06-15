@@ -18,7 +18,7 @@ export function PolyatomicConfirm({ zone, onConfirm }: Props) {
       <p className="text-sm text-anion/80 text-center">
         {zone.symbol} carries a {formatCharge(charge!)} charge
       </p>
-      <p className="text-xs text-muted text-center">
+      <p className="text-xs text-white/80 text-center">
         Polyatomic ions are memorised as pre-charged units.
       </p>
       <button

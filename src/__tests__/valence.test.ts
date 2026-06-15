@@ -25,6 +25,7 @@ describe('isTransitionMetal', () => {
 describe('groupToValenceFallback', () => {
   it('group 1 → 1', () => expect(groupToValenceFallback(1)).toBe(1));
   it('group 2 → 2', () => expect(groupToValenceFallback(2)).toBe(2));
+  it('group 5 → 0 (transition metal)', () => expect(groupToValenceFallback(5)).toBe(0));
   it('group 13 → 3', () => expect(groupToValenceFallback(13)).toBe(3));
   it('group 16 → 6', () => expect(groupToValenceFallback(16)).toBe(6));
   it('group 17 → 7', () => expect(groupToValenceFallback(17)).toBe(7));

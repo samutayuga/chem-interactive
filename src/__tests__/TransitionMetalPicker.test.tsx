@@ -9,6 +9,12 @@ const feZone: ZoneState = {
   derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
 };
 
+const osZone: ZoneState = {
+  symbol: 'Os', isPolyatomic: false, isTransition: true,
+  valenceElectrons: 6, oxidationStates: [8],
+  derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
+};
+
 describe('TransitionMetalPicker', () => {
   it('renders a button per positive oxidation state', () => {
     render(<TransitionMetalPicker zone={feZone} onPick={vi.fn()} />);
@@ -21,5 +27,10 @@ describe('TransitionMetalPicker', () => {
     render(<TransitionMetalPicker zone={feZone} onPick={onPick} />);
     fireEvent.click(screen.getByRole('button', { name: /Fe³\+/i }));
     expect(onPick).toHaveBeenCalledWith(3);
+  });
+
+  it('falls back to numeric label for charge > 7', () => {
+    render(<TransitionMetalPicker zone={osZone} onPick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Os8+' })).toBeInTheDocument();
   });
 });

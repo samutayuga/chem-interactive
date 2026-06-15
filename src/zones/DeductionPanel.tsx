@@ -3,26 +3,26 @@ import { useIonicCanvas } from '../canvas/hooks';
 import { RegularDeduction } from './RegularDeduction';
 import { TransitionMetalPicker } from './TransitionMetalPicker';
 import { PolyatomicConfirm } from './PolyatomicConfirm';
-import type { Side, ZoneState } from '../canvas/types';
+import type { Slot, ZoneState } from '../canvas/types';
 
 interface Props {
-  side: Side;
+  slot: Slot;
   zone: ZoneState;
 }
 
-export function DeductionPanel({ side, zone }: Props) {
+export function DeductionPanel({ slot, zone }: Props) {
   const { dispatch } = useIonicCanvas();
 
   const handleSubmit = (loseOrGain: 'lose' | 'gain', count: number) => {
-    dispatch({ type: 'SUBMIT_DEDUCTION', side, loseOrGain, count });
+    dispatch({ type: 'SUBMIT_DEDUCTION', slot, loseOrGain, count });
   };
 
   const handleTmPick = (charge: number) => {
-    dispatch({ type: 'PICK_TM_CHARGE', side, charge });
+    dispatch({ type: 'PICK_TM_CHARGE', slot, charge });
   };
 
   const handlePolyConfirm = () => {
-    dispatch({ type: 'CONFIRM_POLYATOMIC', side });
+    dispatch({ type: 'CONFIRM_POLYATOMIC', slot });
   };
 
   return (
@@ -39,7 +39,7 @@ export function DeductionPanel({ side, zone }: Props) {
         ) : zone.isTransition ? (
           <TransitionMetalPicker zone={zone} onPick={handleTmPick} />
         ) : (
-          <RegularDeduction zone={zone} side={side} onSubmit={handleSubmit} />
+          <RegularDeduction zone={zone} slot={slot} onSubmit={handleSubmit} />
         )}
       </motion.div>
     </AnimatePresence>

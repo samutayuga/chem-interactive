@@ -1,4 +1,4 @@
-import type { IonicCanvasState } from './types';
+import type { CanvasState } from './types';
 
 export interface PolyatomicIon {
   symbol:  string;
@@ -16,9 +16,10 @@ export const POLYATOMIC_IONS: PolyatomicIon[] = [
   { symbol: 'NH₄', name: 'Ammonium',   charge: +1, formula: 'NH₄⁺' },
 ];
 
-export const INITIAL_STATE: IonicCanvasState = {
+export const INITIAL_STATE: CanvasState = {
   canvasPhase:         'SELECTING',
-  activeDeductionSide: null,
-  cation:              null,
-  anion:               null,
+  bondingType:         null,
+  slotA:               null,
+  slotB:               null,
+  activeDeductionSlot: null,
 };

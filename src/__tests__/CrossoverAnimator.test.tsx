@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, act } from '@testing-library/react';
 import { CrossoverAnimator } from '../bridge/CrossoverAnimator';
 import type { ZoneState } from '../canvas/types';
 
@@ -42,6 +42,40 @@ const oh: ZoneState = {
   valenceElectrons: 0, oxidationStates: [-1],
   derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
+
+describe('CrossoverAnimator animation flow', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  // Each React setState from a timer needs its own act() flush before the next
+  // useEffect fires and schedules the following timer.
+  const runSteps = async (n = 5) => {
+    for (let i = 0; i < n; i++) {
+      await act(async () => { vi.runAllTimers(); });
+    }
+  };
+
+  it('calls onComplete after full animation — no brackets, no gcd (Mg+Cl)', async () => {
+    const onComplete = vi.fn();
+    render(<CrossoverAnimator cation={mg} anion={cl} onComplete={onComplete} />);
+    await runSteps();
+    expect(onComplete).toHaveBeenCalled();
+  });
+
+  it('calls onComplete after full animation — brackets, no gcd (Ca+OH)', async () => {
+    const onComplete = vi.fn();
+    render(<CrossoverAnimator cation={ca} anion={oh} onComplete={onComplete} />);
+    await runSteps();
+    expect(onComplete).toHaveBeenCalled();
+  });
+
+  it('calls onComplete after full animation — no brackets, with gcd (Ca+O)', async () => {
+    const onComplete = vi.fn();
+    render(<CrossoverAnimator cation={ca} anion={o} onComplete={onComplete} />);
+    await runSteps();
+    expect(onComplete).toHaveBeenCalled();
+  });
+});
 
 describe('CrossoverAnimator subscript computation', () => {
   it('Mg²⁺ + Cl⁻ → cationSub=1, anionSub=2', () => {
