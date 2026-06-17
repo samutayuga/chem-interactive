@@ -1,20 +1,20 @@
 # Chem Interactive — Chemical Bonding Canvas
 
-An interactive chemistry tool for exploring chemical bonding. Students drag elements onto a canvas, and the app automatically determines the bond type (Ionic, Covalent, or Metallic) based on the element classes, then guides them through the appropriate visualization.
+An interactive chemistry tool for Singapore O-Level students. Drag elements onto a canvas; the app auto-determines the bond type (Ionic, Covalent, or Metallic), resolves charges, and displays the correct formula and bonding diagram.
 
 ## Features
 
-- **All 118 elements** — full periodic table tray, f-block (lanthanides + actinides) shown below main table per convention
-- **Three-way class coloring** — tokens colored by Metal (amber), NonMetal (cyan), Metalloid (sage green)
-- **Smart bond detection** — drop any two elements; bond type auto-determined from WASM `class` field
-- **Tray highlighting** — after first drop, tray shows color rings: cyan=Ionic, emerald=Covalent, amber=Metallic; noble gases dimmed
-- **Ionic bonding** — guided charge deduction (lose/gain electrons), transition metal charge picker, crossover animation, balanced formula
-- **Covalent bonding** — Venn diagram (overlapping atom circles) with shared electron pairs and lone pairs calculated from octet rule; correct stoichiometry (H₂O, CO₂, NH₃, N₂…)
-- **Metallic bonding** — metal ion lattice with animated sea of delocalised electrons, alloy formula
-- **Polyatomic ions** — OH⁻, NO₃⁻, SO₄²⁻, CO₃²⁻, PO₄³⁻, NH₄⁺ as pre-charged draggable tokens
-- **Resizable tray** — drag handle between tray and bond zones to adjust split
-- **Hover tooltips** — group category on column hover; electron config on element hover
-- **Hover scaling** — element tokens scale up on hover with enlarged atomic/mass number text
+- **All 118 elements** — full periodic table tray; f-block (lanthanides + actinides) shown below main table per convention
+- **Polyatomic ions** — OH⁻, NO₃⁻, SO₄²⁻, CO₃²⁻, PO₄³⁻, NH₄⁺ as draggable pre-charged tokens
+- **Auto bond detection** — bond type determined from element classes the moment the second element is dropped
+- **Tray bonding hints** — after first drop, each element in the tray gets a background tint showing what bond it would form: blue = Ionic, green = Covalent, orange = Metallic; noble gases dimmed (incompatible)
+- **Auto charge resolution** — ionic charges resolved immediately from `oxidationStates[0]`; transition metals prompt a charge picker inside the explanation modal
+- **Explanation modal** — appears for all bond types; explains how the bond forms before showing the result
+- **Replace any element** — `×` button on each zone clears that slot and resets the other; drag a new element onto a filled zone to restart automatically
+- **Ionic bonding** — crossover animation → balanced formula following cation-first ordering; correct acid formula (H always first)
+- **Covalent bonding** — Lewis diagram with shared electron pairs and lone pairs; IUPAC electronegativity ordering for formula (less EN element first); layouts for 1–4 peripheral atoms
+- **Metallic bonding** — Electron Sea Model: orange cation lattice + animated yellow delocalised electrons; electron count derived from valence electrons; alloy shown as `A + B`
+- **Hover tooltips** — group category on column hover; electron configuration on element hover
 
 ## Tech Stack
 
@@ -40,13 +40,15 @@ Open `http://localhost:5173`.
 
 ## How to Use
 
-1. **Pick an element** from the tray and drag it into either zone (left or right — order doesn't matter).
-2. **Pick a partner element** — the tray highlights compatible elements and shows what bond type would form.
-3. **Bond determined automatically:**
-   - **Ionic** (Metal + NonMetal, or Metal + Metalloid): deduce the charge for each element, then click Cross Over to see the balanced formula.
-   - **Covalent** (NonMetal + NonMetal, or NonMetal + Metalloid): Venn diagram with shared electron pairs and lone pairs shown immediately.
-   - **Metallic** (Metal + Metal): animated electron sea with formula shown immediately.
-4. Click **Reset** to start over.
+1. **Pick an element** from the tray and drag it into either drop zone.
+2. **Tray updates** — color tints appear on compatible elements showing predicted bond type.
+3. **Pick a second element** — drag it into the other zone. Bond type is detected instantly.
+4. **Explanation modal opens** — shows how the bond forms:
+   - **Ionic**: charges auto-resolved; transition metals show a charge picker. Apply → crossover animation → balanced formula.
+   - **Covalent**: shared electron count per atom explained. Apply → Lewis diagram.
+   - **Metallic**: per-atom electron contribution explained. Apply → Electron Sea Model diagram.
+5. **Replace an element** — click `×` on any zone to clear it and reset the other, or drag a new element onto a filled zone.
+6. Click **Reset** to return to the start.
 
 ## Bond Type Rules
 
@@ -55,66 +57,120 @@ Open `http://localhost:5173`.
 | Metal | Metal | Metallic |
 | NonMetal | NonMetal | Covalent |
 | Metalloid | NonMetal / Metalloid | Covalent |
-| Metal | NonMetal | Ionic |
-| Metal / Metalloid | Metalloid | Ionic |
+| Metal / Metalloid | NonMetal / Metalloid | Ionic |
+| Any | Polyatomic ion | Ionic |
+
+Noble gases are incompatible with all elements.
+
+## Formula Ordering Rules
+
+### Ionic compounds
+Cation (positive charge) always written first. H⁺ is treated as cation → acid formulas always lead with H (e.g., HCl, HNO₃, H₂SO₄).
+
+### Covalent compounds
+IUPAC electronegativity order — less electronegative element written first:
+
+```
+B < Si < C < Sb < As < P < N < H < Te < Se < S < O < I < Br < Cl < F
+```
+
+Examples: CO₂ (C before O), H₂O (H before O), NH₃ (N before H per IUPAC convention), HCl (H before Cl).
+
+## Ionic Charge Resolution
+
+```
+if isTransition  → charge picker shown in modal (DEDUCING)
+if oxidationStates is empty → charge picker shown (DEDUCING)
+else             → derivedCharge = oxidationStates[0], status = IONIZED
+```
+
+For polyatomic ions: `derivedCharge = ion.charge` (fixed).
 
 ## Covalent Stoichiometry
 
-Stoichiometry and bond order are derived purely from valence electrons using the octet rule. No lookup tables.
+Derived from valence electrons using the octet rule (H uses duet rule):
 
 ```
 shellTarget(ve) = ve ≤ 2 ? 2 : 8
 bondsNeeded(ve) = shellTarget(ve) − ve
 g               = gcd(bondsNeeded(veA), bondsNeeded(veB))
-nA              = bondsNeeded(veB) / g   ← count of element A atoms
-nB              = bondsNeeded(veA) / g   ← count of element B atoms
-bondOrder       = g                      ← 1=single, 2=double, 3=triple
+nA              = bondsNeeded(veB) / g     ← atom count for A
+nB              = bondsNeeded(veA) / g     ← atom count for B
+bondOrder       = g                        ← 1=single, 2=double, 3=triple
 ```
 
-Lone pairs per atom = `(ve − bondOrder × bonds_from_that_atom) / 2`.
+| Compound | nA | nB | Bond order | Formula |
+|----------|----|----|------------|---------|
+| HCl | 1 | 1 | 1 | HCl |
+| H₂O | 2 | 1 | 1 | H₂O |
+| CO₂ | 1 | 2 | 2 | CO₂ |
+| NH₃ | 1 | 3 | 1 | NH₃ |
+| N₂  | 1 | 1 | 3 | N₂  |
+| CH₄ | 1 | 4 | 1 | CH₄ |
 
-| Compound | veA | veB | nA | nB | Bond order | Formula |
-|----------|-----|-----|----|----|------------|---------|
-| HCl | 1 | 7 | 1 | 1 | 1 | HCl |
-| H₂O | 1 | 6 | 2 | 1 | 1 | H₂O |
-| CO₂ | 4 | 6 | 1 | 2 | 2 | CO₂ |
-| NH₃ | 1 | 5 | 3 | 1 | 1 | NH₃ |
-| N₂  | 5 | 5 | 1 | 1 | 3 | N₂  |
-
-## Covalent Venn Diagram Layout
+## Covalent Lewis Diagram Layouts
 
 The element with count = 1 is the **central** atom; the other is **peripheral**.
 
 | nPeripheral | Layout |
 |-------------|--------|
 | 1 | Two overlapping circles (classic Venn) |
-| 2 | Central circle flanked by two peripheral circles (e.g., H₂O, CO₂) |
-| 3 | Central circle with three peripheral circles (e.g., NH₃) |
-| 4+ | Simplified: two-circle view with ×n badge |
+| 2 | Central flanked left + right (H₂O, CO₂) |
+| 3 | Central with trigonal arrangement (NH₃, BF₃) |
+| 4 | Central with cross arrangement — top/right/bottom/left (CH₄, CCl₄) |
+| 5+ | Simplified two-circle view with ×n badge |
 
-Shared electron pairs → coloured dots in each overlap zone (2 dots per pair, one per atom colour).  
-Lone pairs → coloured dots placed in directions away from all bond angles.
+Shared pairs → coloured dots in the bond overlap (2 dots per bond order, one per atom colour).  
+Lone pairs → dots placed in directions away from all bond angles.
 
-## QA Cases
+## Metallic Bonding — Electron Sea Model
 
-| Compound | Slot A | Slot B | Bond | Formula |
-|----------|--------|--------|------|---------|
-| Magnesium chloride | Mg (lose 2) | Cl (gain 1) | Ionic | MgCl₂ |
-| Calcium oxide | Ca (lose 2) | O (gain 2) | Ionic | CaO |
-| Iron(III) oxide | Fe (TM: +3) | O (gain 2) | Ionic | Fe₂O₃ |
-| Water | H | O | Covalent | H₂O (single bond, 2 lone pairs on O) |
-| Carbon dioxide | C | O | Covalent | CO₂ (double bond, 2 lone pairs on each O) |
-| Nitrogen | N | N | Covalent | N₂ (triple bond, 1 lone pair each) |
-| Iron-copper alloy | Fe | Cu | Metallic | Fe-Cu |
+Diagram shows 6 metal cation sites (3×2 lattice, alternating A/B in alloys) with animated yellow delocalised electrons.
+
+- Cation colour: orange family (A = `#f97316`, B = `#fb923c`)
+- Electron colour: yellow (`#fde047`)
+- Electron count = `3 × slotA.valenceElectrons + 3 × slotB.valenceElectrons` (capped at 12)
+- Pure metal formula: `Na` (element symbol)
+- Alloy formula: `Na + Mg` (components, no fixed ratio — alloys have variable composition)
+
+## State Machine
+
+```
+SELECTING
+  ↓ DROP_ELEMENT (slot A or B)
+SLOT_A_FILLED  ← tray shows bonding hints
+  ↓ DROP_ELEMENT (other slot) → bond type + auto-ionise
+EXPLAINING     ← ExplanationModal open (all bond types)
+  ↓ DISMISS_EXPLANATION
+  ├── Ionic ──────────────→ ANIMATING_CROSSOVER
+  │                              ↓ CROSSOVER_COMPLETE
+  │                         COMPLETE
+  ├── Covalent ──────────→ SHOWING_COVALENT
+  └── Metallic ──────────→ SHOWING_METALLIC
+        ↓ RESET (or drop new element onto a filled zone)
+  SELECTING
+```
+
+### Actions
+
+| Action | Trigger | Effect |
+|--------|---------|--------|
+| `DROP_ELEMENT { slot, zone }` | Drag to zone | Fill slot; if other slot filled → auto-ionise + `EXPLAINING`; if both were filled → reset other slot + `SLOT_A_FILLED` |
+| `PICK_TM_CHARGE { slot, charge }` | TM picker in modal | Sets `derivedCharge` for that slot |
+| `DISMISS_EXPLANATION` | Apply button in modal | Routes to `ANIMATING_CROSSOVER` / `SHOWING_COVALENT` / `SHOWING_METALLIC` |
+| `REPLACE_ELEMENT { slot }` | `×` button on zone | Clears slot; resets other slot to NEUTRAL; `SLOT_A_FILLED` or `SELECTING` |
+| `CROSSOVER_COMPLETE` | Animator callback | `COMPLETE` |
+| `RESET` | Reset button | Back to `SELECTING` |
 
 ## Project Structure
 
 ```
 src/
-  canvas/       # IonicCanvas root, reducer, types, context
-  tray/         # ElementTray, ElementToken, PolyatomicToken
-  zones/        # DropZone, DeductionPanel, RegularDeduction, TransitionMetalPicker, PolyatomicConfirm
-  bridge/       # BridgeColumn, CrossoverAnimator, BondingDiagram, CovalentView, MetallicView
+  canvas/       # IonicCanvas root, reducer, types, context, constants
+  tray/         # ElementTray, ElementToken (+ BondHint), PolyatomicToken
+  zones/        # DropZone (with × replace button), TransitionMetalPicker
+  bridge/       # BridgeColumn, ExplanationModal, CrossoverAnimator,
+                #   BondingDiagram, CovalentView, MetallicView
   wasm/         # WasmProvider, element hooks
   utils/        # gcd, valence, elementColor helpers
 ```
@@ -125,106 +181,69 @@ src/
 
 ```
 App
-├── WasmProvider                   ← loads WASM, exposes WasmContext
-│   └── IonicCanvasProvider        ← useReducer state machine, exposes IonicCanvasContext
-│       └── IonicCanvas            ← DndContext + drag handler + resizable tray splitter
-│           ├── ElementTray        ← reads WasmContext + CanvasContext; tray highlight logic
-│           │   ├── ElementToken (×118)    ← useDraggable; color from el.class; hover scale
-│           │   └── PolyatomicToken (×6)   ← useDraggable
-│           ├── DropZone (slot A)  ← useDroppable; generic (no cation/anion label)
-│           │   └── DeductionPanel         ← Ionic only: RegularDeduction / TMPicker / PolyConfirm
-│           ├── BridgeColumn       ← routes to correct visualization by bondingType
-│           │   ├── BondingDiagram         ← Ionic: Lewis transfer + ion diagram
-│           │   ├── CrossoverAnimator      ← Ionic: crossover animation
-│           │   ├── CovalentView           ← Covalent: Venn diagram, shared + lone pair electrons
-│           │   └── MetallicView           ← Metallic: ion lattice + animated electron sea
-│           └── DropZone (slot B)
+└── WasmProvider                       ← loads WASM, exposes WasmContext
+    └── IonicCanvasProvider            ← useReducer state machine, exposes IonicCanvasContext
+        └── IonicCanvas                ← DndContext + drag handler + resizable tray splitter
+            ├── ElementTray            ← reads WasmContext + CanvasContext; hint coloring
+            │   ├── ElementToken ×118  ← useDraggable; bondHint background fill
+            │   └── PolyatomicToken ×6 ← useDraggable
+            ├── DropZone (slot A)      ← useDroppable; × replace button
+            ├── BridgeColumn           ← routes by bondingType + canvasPhase
+            │   ├── ExplanationModal   ← EXPLAINING phase; TM picker inline
+            │   ├── CrossoverAnimator  ← ANIMATING_CROSSOVER phase
+            │   ├── BondingDiagram     ← COMPLETE phase (Ionic)
+            │   ├── CovalentView       ← SHOWING_COVALENT
+            │   └── MetallicView       ← SHOWING_METALLIC
+            └── DropZone (slot B)
 ```
 
-### WASM as the Single Source of Domain Truth
+### WASM as Single Source of Domain Truth
 
-All element domain knowledge lives in the Rust/WASM module. The frontend holds **no chemistry constants** — it only reads `WasmElement` fields.
+All element data comes from the Rust/WASM module. The frontend holds no chemistry constants.
 
 | Domain question | WASM field | Where used |
 |-----------------|------------|------------|
-| Which period row? | `el.period` | `ElementTray` grid row placement |
-| Which group column? | `el.group` | `ElementTray` column filter |
-| Metal / NonMetal / Metalloid? | `el.class` | Bond type determination; token color |
-| Is transition metal? | `el.block === 'd'` | `makeZoneState` — enables TM charge picker |
-| Token / border color | `el.class` | `elementClassColor(el.class)` |
-| Group column background | `el.category` | `elementColor(el.category)` |
-| Group label tooltip | `el.category` (first in group) | `ElementTray` tooltip |
-| Valid ionic charges | `el.oxidation_states` | `SUBMIT_DEDUCTION` reducer validation |
-| Valence electrons | `el.electron_configuration` | `parseValenceElectrons` — octet rule + Venn diagram |
-| Bond pair count / stoichiometry | derived from `el.electron_configuration` | `CovalentView` shared pairs + atom count |
-| Name / isotope display | `el.name`, `el.mass_number`, `el.atomic_number` | `ElementToken` UI + tooltip |
+| Period row | `el.period` | ElementTray grid placement |
+| Group column | `el.group` | ElementTray column filter |
+| Metal / NonMetal / Metalloid | `el.class` | Bond type; token color; hint coloring |
+| Transition metal | `el.block === 'd'` | `makeZoneState` — enables TM picker |
+| Valid ionic charges | `el.oxidation_states` | `autoIonize`; TM picker options |
+| Valence electrons | `el.electron_configuration` | `parseValenceElectrons` — covalent stoichiometry; metallic electron count |
+| Symbol / name / mass | `el.symbol`, `el.name`, `el.mass_number`, `el.atomic_number` | Token UI + tooltips |
 
-**What the frontend still owns (intentionally):**
-- `GROUP_COLUMNS` — ordered list of group numbers to render as columns (layout, not chemistry).
-- `CATEGORY_COLORS` / `CLASS_COLORS` — colour palette (visual design choice).
-- `POLYATOMIC_IONS` — curated list of common polyatomic ions (pedagogical choice).
+**What the frontend owns (intentionally):**
+- `GROUP_COLUMNS` — column render order (layout, not chemistry)
+- Color palettes — visual design
+- `POLYATOMIC_IONS` — curated pedagogical list
+- `IUPAC_ORDER` — electronegativity ordering map for covalent formula display
 
-### State Machine
+### WASM Element Baked at Drag Time
 
-```
-SELECTING
-  ↓ DROP_ELEMENT (either slot)
-SLOT_A_FILLED  ← first element in; tray highlights compatible partners
-  ↓ DROP_ELEMENT (other slot) → bond type determined from class pair
-  ├── Ionic ──────────────→ DEDUCING_CHARGE
-  │                              ↓ both slots IONIZED
-  │                         READY_TO_CROSS
-  │                              ↓ TRIGGER_CROSSOVER
-  │                         ANIMATING_CROSSOVER
-  │                              ↓ CROSSOVER_COMPLETE
-  │                         COMPLETE
-  ├── Covalent ──────────→ SHOWING_COVALENT  (immediate, no deduction)
-  └── Metallic ──────────→ SHOWING_METALLIC  (immediate, no deduction)
-        ↓ RESET
-  SELECTING
-```
-
-### Action → Reducer → UI
-
-| User action | Action dispatched | State change |
-|-------------|------------------|--------------|
-| Drop token on zone | `DROP_ELEMENT { slot }` | zone filled; if second drop → bondingType set |
-| Click Lose/Gain + count | `SUBMIT_DEDUCTION { slot }` | validates vs oxidationStates + class; sets derivedCharge |
-| Click TM charge button | `PICK_TM_CHARGE { slot }` | sets derivedCharge directly |
-| Confirm polyatomic | `CONFIRM_POLYATOMIC { slot }` | reads oxidationStates[0] |
-| Click Cross Over | `TRIGGER_CROSSOVER` | phase → ANIMATING_CROSSOVER |
-| Animation ends | `CROSSOVER_COMPLETE` | phase → COMPLETE |
-| Reset | `RESET` | back to SELECTING |
-
-### WebAssembly Data Flow
-
-```
-vite-plugin-wasm  (--target bundler build)
-    ↓  (dynamic import at runtime)
-@periodic-table  (Rust/WASM pkg, path alias)
-    ↓
-WasmProvider  (useEffect → import('@periodic-table'))
-    ├─ PT.load()        → PeriodicTable instance
-    ├─ pt.all()         → WasmElement[] (all 118 elements)
-    └─ WasmContext.Provider  value={ pt, elements }
-         ↓  (useAllElements hook)
-    ElementTray
-         ↓  maps all 118 elements → ElementToken or f-block row
-    ElementToken
-         └─ makeZoneState(WasmElement)
-              reads: symbol, class, block, electron_configuration,
-                     group, oxidation_states, atomic_number, name
-              produces: ZoneState { symbol, elementClass (= class),
-                         isTransition (= block==='d'),
-                         valenceElectrons, oxidationStates, ... }
-```
-
-`WasmElement` data is **baked into `ZoneState` at drag time** — once a token is dropped the zone is fully self-contained and never reads WASM again.
+`makeZoneState(WasmElement)` converts the WASM type to `ZoneState` at drag start. Once dropped, the zone is self-contained and never reads WASM again.
 
 ### Rebuilding WASM
 
 ```bash
+# Run from ../sam-periodic-table/
 wasm-pack build crates/pt-wasm --target bundler --out-dir pkg/pt-wasm
 ```
 
-Run from `../sam-periodic-table/`. The `--target bundler` flag is required for `vite-plugin-wasm` compatibility.
+`--target bundler` is required for `vite-plugin-wasm` compatibility.
+
+## QA Cases
+
+| Compound | Slot A | Slot B | Bond | Formula |
+|----------|--------|--------|------|---------|
+| Magnesium chloride | Mg | Cl | Ionic | MgCl₂ |
+| Calcium oxide | Ca | O | Ionic | CaO |
+| Iron(III) oxide | Fe (pick +3) | O | Ionic | Fe₂O₃ |
+| Sulfuric acid | H | SO₄²⁻ | Ionic | H₂SO₄ |
+| Nitric acid | H | NO₃⁻ | Ionic | HNO₃ |
+| Ammonium chloride | NH₄⁺ | Cl | Ionic | NH₄Cl |
+| Water | H | O | Covalent | H₂O |
+| Carbon dioxide | C | O | Covalent | CO₂ |
+| Methane | C | H | Covalent | CH₄ |
+| Nitrogen | N | N | Covalent | N₂ (triple bond) |
+| Hydrogen chloride | H | Cl | Covalent | HCl |
+| Iron (pure) | Fe | Fe | Metallic | Fe |
+| Brass | Cu | Zn | Metallic | Cu + Zn |
