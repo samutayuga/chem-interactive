@@ -42,7 +42,8 @@ export function ElementTray() {
 
   const isDraggingDisabled = state.canvasPhase === 'ANIMATING_CROSSOVER'
     || state.canvasPhase === 'SHOWING_COVALENT'
-    || state.canvasPhase === 'SHOWING_METALLIC';
+    || state.canvasPhase === 'SHOWING_METALLIC'
+    || state.canvasPhase === 'EXPLAINING';
 
   const slotAFilled = state.slotA !== null;
   const slotBFilled = state.slotB !== null;

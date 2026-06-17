@@ -117,6 +117,7 @@ interface PolyTokenProps {
 export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
   const zoneState: ZoneState = {
     symbol:           ion.symbol,
+    elementClass:     'NonMetal',
     isPolyatomic:     true,
     isTransition:     false,
     valenceElectrons: 0,
