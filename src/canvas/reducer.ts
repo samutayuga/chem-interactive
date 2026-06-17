@@ -15,7 +15,6 @@ function otherSlot(slot: Slot): Slot {
 
 function determineBonding(a: ElementClass, b: ElementClass): BondingType {
   if (a === 'Metal' && b === 'Metal') return 'Metallic';
-  if (a === 'NonMetal' && b === 'NonMetal') return 'Covalent';
   if ((a === 'Metalloid' || a === 'NonMetal') && (b === 'Metalloid' || b === 'NonMetal')) return 'Covalent';
   return 'Ionic';
 }
@@ -48,7 +47,7 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
       const ionizedOther = autoIonize(other);
       const slotA = action.slot === 'A' ? ionizedNew : ionizedOther;
       const slotB = action.slot === 'B' ? ionizedNew : ionizedOther;
-      return { ...state, slotA, slotB, bondingType, canvasPhase: 'EXPLAINING' };
+      return { ...next, slotA, slotB, bondingType, canvasPhase: 'EXPLAINING' };
     }
 
     case 'PICK_TM_CHARGE': {
@@ -59,6 +58,10 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
     }
 
     case 'DISMISS_EXPLANATION': {
+      if (
+        state.bondingType === 'Ionic' &&
+        (state.slotA?.status === 'DEDUCING' || state.slotB?.status === 'DEDUCING')
+      ) return state;
       if (state.bondingType === 'Ionic')    return { ...state, canvasPhase: 'ANIMATING_CROSSOVER' };
       if (state.bondingType === 'Covalent') return { ...state, canvasPhase: 'SHOWING_COVALENT' };
       if (state.bondingType === 'Metallic') return { ...state, canvasPhase: 'SHOWING_METALLIC' };
