@@ -23,6 +23,13 @@ function buildFormulaJsx(
 }
 
 function ionicPair(slotA: ZoneState, slotB: ZoneState): { cation: ZoneState; anion: ZoneState } {
+  // Use derivedCharge when available — correctly handles H⁺ acids and polyatomic anions
+  if (slotA.derivedCharge !== null && slotB.derivedCharge !== null) {
+    return slotA.derivedCharge > 0
+      ? { cation: slotA, anion: slotB }
+      : { cation: slotB, anion: slotA };
+  }
+  // Fallback for TM DEDUCING state
   const aCation = slotA.elementClass === 'Metal' || slotA.elementClass === 'Metalloid';
   return aCation ? { cation: slotA, anion: slotB } : { cation: slotB, anion: slotA };
 }

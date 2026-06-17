@@ -30,6 +30,14 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
 
     case 'DROP_ELEMENT': {
       const newZone: ZoneState = { ...action.zone, status: 'NEUTRAL', wrongCount: 0 };
+
+      // Both slots filled → new drop resets the other slot and restarts
+      if (state.slotA !== null && state.slotB !== null) {
+        const next    = setSlot(state, action.slot, newZone);
+        const cleared = setSlot(next, otherSlot(action.slot), null);
+        return { ...cleared, canvasPhase: 'SLOT_A_FILLED', bondingType: null };
+      }
+
       const next = setSlot(state, action.slot, newZone);
       const other = getSlot(next, otherSlot(action.slot));
 
@@ -37,7 +45,10 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
         return { ...next, canvasPhase: 'SLOT_A_FILLED', bondingType: null };
       }
 
-      const bondingType = determineBonding(newZone.elementClass, other.elementClass);
+      // Polyatomic ions always form ionic compounds
+      const bondingType = (newZone.isPolyatomic || other.isPolyatomic)
+        ? 'Ionic'
+        : determineBonding(newZone.elementClass, other.elementClass);
 
       if (bondingType === 'Covalent' || bondingType === 'Metallic') {
         return { ...next, bondingType, canvasPhase: 'EXPLAINING' };

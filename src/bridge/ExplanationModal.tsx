@@ -45,6 +45,13 @@ function electronsNeeded(valenceElectrons: number): number {
 }
 
 function ionicCation(slotA: ZoneState, slotB: ZoneState): { cation: ZoneState; anion: ZoneState } {
+  // Use derivedCharge when available (handles H⁺ and all metals correctly)
+  if (slotA.derivedCharge !== null && slotB.derivedCharge !== null) {
+    return slotA.derivedCharge > 0
+      ? { cation: slotA, anion: slotB }
+      : { cation: slotB, anion: slotA };
+  }
+  // Fallback for DEDUCING (TM picker open): Metal/Metalloid is cation
   const aCation = slotA.elementClass === 'Metal' || slotA.elementClass === 'Metalloid';
   return aCation ? { cation: slotA, anion: slotB } : { cation: slotB, anion: slotA };
 }
@@ -95,9 +102,14 @@ function BondingSummary({ bondingType, slotA, slotB }: { bondingType: BondingTyp
       </p>
     );
   }
+  const homonuclear = slotA.symbol === slotB.symbol;
   return (
     <p className="text-sm text-white/70 text-center">
-      {slotA.symbol} contributes {slotA.valenceElectrons} and {slotB.symbol} contributes {slotB.valenceElectrons} valence electron{slotB.valenceElectrons !== 1 ? 's' : ''} to a delocalised electron sea.
+      {homonuclear
+        ? <>Each <strong className="text-white">{slotA.symbol}</strong> atom contributes <strong className="text-white">{slotA.valenceElectrons}</strong> valence electron{slotA.valenceElectrons !== 1 ? 's' : ''} to a delocalised electron sea.</>
+        : <>Each <strong className="text-white">{slotA.symbol}</strong> atom contributes <strong className="text-white">{slotA.valenceElectrons}</strong> electron{slotA.valenceElectrons !== 1 ? 's' : ''} and each <strong className="text-white">{slotB.symbol}</strong> atom contributes <strong className="text-white">{slotB.valenceElectrons}</strong> electron{slotB.valenceElectrons !== 1 ? 's' : ''}.</>
+      }{' '}
+      The positive metal ions are held in a lattice by electrostatic attraction to the sea of electrons.
     </p>
   );
 }
