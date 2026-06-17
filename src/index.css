@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg:      #1a0a2e;
+  --color-cation:  #00ff88;
+  --color-anion:   #ff4080;
+  --color-accent:  #7040ff;
+  --color-surface: #2a1a4e;
+  --color-muted:   #4a3a6e;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: #e0d0ff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+}
