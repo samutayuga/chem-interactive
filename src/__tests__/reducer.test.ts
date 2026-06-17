@@ -140,6 +140,17 @@ describe('DISMISS_EXPLANATION', () => {
     );
     expect(s.canvasPhase).toBe('SHOWING_METALLIC');
   });
+
+  it('Ionic + TM still DEDUCING → no-op (state unchanged)', () => {
+    const state: CanvasState = {
+      ...INITIAL_STATE, canvasPhase: 'EXPLAINING', bondingType: 'Ionic',
+      slotA: { ...feZone, status: 'DEDUCING' },
+      slotB: { ...oZone, status: 'IONIZED', derivedCharge: -2 },
+    };
+    const s = canvasReducer(state, { type: 'DISMISS_EXPLANATION' });
+    expect(s).toBe(state);
+    expect(s.canvasPhase).toBe('EXPLAINING');
+  });
 });
 
 describe('REPLACE_ELEMENT', () => {

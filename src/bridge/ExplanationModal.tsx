@@ -40,6 +40,10 @@ function formulaPreview(cation: ZoneState, anion: ZoneState): string {
   return `${cPart}${aPart}`;
 }
 
+function electronsNeeded(valenceElectrons: number): number {
+  return valenceElectrons === 1 ? 1 : 8 - valenceElectrons;
+}
+
 function ionicCation(slotA: ZoneState, slotB: ZoneState): { cation: ZoneState; anion: ZoneState } {
   const aCation = slotA.elementClass === 'Metal' || slotA.elementClass === 'Metalloid';
   return aCation ? { cation: slotA, anion: slotB } : { cation: slotB, anion: slotA };
@@ -54,6 +58,13 @@ function SlotPanel({ zone, slot }: { zone: ZoneState; slot: Slot }) {
           zone={zone}
           onPick={(charge) => dispatch({ type: 'PICK_TM_CHARGE', slot, charge })}
         />
+      </div>
+    );
+  }
+  if (zone.status === 'NEUTRAL') {
+    return (
+      <div className="rounded-lg bg-white/5 p-3 text-sm text-white/80">
+        {zone.symbol} — charge to be determined
       </div>
     );
   }
@@ -76,8 +87,8 @@ function BondingSummary({ bondingType, slotA, slotB }: { bondingType: BondingTyp
     );
   }
   if (bondingType === 'Covalent') {
-    const aN = 8 - slotA.valenceElectrons;
-    const bN = 8 - slotB.valenceElectrons;
+    const aN = electronsNeeded(slotA.valenceElectrons);
+    const bN = electronsNeeded(slotB.valenceElectrons);
     return (
       <p className="text-sm text-white/70 text-center">
         {slotA.symbol} needs {aN} more electron{aN !== 1 ? 's' : ''} and {slotB.symbol} needs {bN} electron{bN !== 1 ? 's' : ''} — they share electrons to complete their octets.

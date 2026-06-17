@@ -21,6 +21,7 @@ function determineBonding(a: ElementClass, b: ElementClass): BondingType {
 
 function autoIonize(zone: ZoneState): ZoneState {
   if (zone.isTransition) return { ...zone, status: 'DEDUCING' };
+  if (!zone.oxidationStates.length) return { ...zone, status: 'DEDUCING' };
   return { ...zone, status: 'IONIZED', derivedCharge: zone.oxidationStates[0] };
 }
 
