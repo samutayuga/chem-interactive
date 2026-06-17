@@ -77,6 +77,39 @@ describe('CrossoverAnimator animation flow', () => {
   });
 });
 
+describe('CrossoverAnimator — cation subscript > 1 (Fe3+ + O2-)', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  const runSteps = async (n = 5) => {
+    for (let i = 0; i < n; i++) {
+      await act(async () => { vi.runAllTimers(); });
+    }
+  };
+
+  it('calls onComplete after full animation — both subscripts > 1', async () => {
+    const fe3: ZoneState = {
+      symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
+      valenceElectrons: 2, oxidationStates: [3],
+      derivedCharge: 3, wrongCount: 0, status: 'IONIZED',
+    };
+    const o2: ZoneState = {
+      symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
+      valenceElectrons: 6, oxidationStates: [-2],
+      derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
+    };
+    const onComplete = vi.fn();
+    const { getByTestId } = render(
+      <CrossoverAnimator cation={fe3} anion={o2} onComplete={onComplete} />
+    );
+    // finalCationSub = |anion charge| / gcd = 2/1 = 2, finalAnionSub = |cation charge| / gcd = 3/1 = 3
+    expect(getByTestId('cation-sub').textContent).toBe('2');
+    expect(getByTestId('anion-sub').textContent).toBe('3');
+    await runSteps();
+    expect(onComplete).toHaveBeenCalled();
+  });
+});
+
 describe('CrossoverAnimator subscript computation', () => {
   it('Mg²⁺ + Cl⁻ → cationSub=1, anionSub=2', () => {
     const onComplete = vi.fn();

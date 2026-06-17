@@ -12,6 +12,8 @@ describe('parseValenceElectrons', () => {
     expect(parseValenceElectrons('[Ne] 3s1', 1)).toBe(1));
   it('falls back to group heuristic on bad input', () =>
     expect(parseValenceElectrons('', 2)).toBe(2));
+  it('falls back when tokens present but none match subshell regex', () =>
+    expect(parseValenceElectrons('invalid xyz', 14)).toBe(4));
 });
 
 describe('isTransitionMetal', () => {

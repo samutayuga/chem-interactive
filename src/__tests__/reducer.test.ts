@@ -110,6 +110,40 @@ describe('PICK_TM_CHARGE', () => {
     expect(s.slotA?.status).toBe('IONIZED');
     expect(s.canvasPhase).toBe('EXPLAINING');
   });
+
+  it('slot is null → state unchanged (no-op)', () => {
+    // INITIAL_STATE has slotA=null, so getSlot returns null → guard branch taken
+    const s = canvasReducer(INITIAL_STATE, { type: 'PICK_TM_CHARGE', slot: 'A', charge: 2 });
+    expect(s).toBe(INITIAL_STATE);
+  });
+});
+
+describe('DROP_ELEMENT — both slots filled (reset branch)', () => {
+  it('drop onto slotB when both filled → slotA cleared, slotB gets new element, SLOT_A_FILLED', () => {
+    const bothFilled: CanvasState = {
+      ...INITIAL_STATE, canvasPhase: 'EXPLAINING', bondingType: 'Ionic',
+      slotA: { ...mgZone, status: 'IONIZED', derivedCharge: 2 },
+      slotB: { ...clZone, status: 'IONIZED', derivedCharge: -1 },
+    };
+    const s = canvasReducer(bothFilled, { type: 'DROP_ELEMENT', slot: 'B', zone: oZone });
+    expect(s.canvasPhase).toBe('SLOT_A_FILLED');
+    expect(s.bondingType).toBeNull();
+    expect(s.slotA).toBeNull();
+    expect(s.slotB?.symbol).toBe('O');
+  });
+
+  it('drop onto slotA when both filled → slotB cleared, slotA gets new element, SLOT_A_FILLED', () => {
+    const bothFilled: CanvasState = {
+      ...INITIAL_STATE, canvasPhase: 'COMPLETE', bondingType: 'Ionic',
+      slotA: { ...mgZone, status: 'IONIZED', derivedCharge: 2 },
+      slotB: { ...clZone, status: 'IONIZED', derivedCharge: -1 },
+    };
+    const s = canvasReducer(bothFilled, { type: 'DROP_ELEMENT', slot: 'A', zone: naZone });
+    expect(s.canvasPhase).toBe('SLOT_A_FILLED');
+    expect(s.bondingType).toBeNull();
+    expect(s.slotB).toBeNull();
+    expect(s.slotA?.symbol).toBe('Na');
+  });
 });
 
 describe('DISMISS_EXPLANATION', () => {
@@ -139,6 +173,16 @@ describe('DISMISS_EXPLANATION', () => {
       { type: 'DISMISS_EXPLANATION' },
     );
     expect(s.canvasPhase).toBe('SHOWING_METALLIC');
+  });
+
+  it('null bondingType → no-op (state unchanged)', () => {
+    const state: CanvasState = {
+      ...INITIAL_STATE, canvasPhase: 'EXPLAINING', bondingType: null,
+      slotA: { ...mgZone, status: 'NEUTRAL' },
+      slotB: { ...clZone, status: 'NEUTRAL' },
+    };
+    const s = canvasReducer(state, { type: 'DISMISS_EXPLANATION' });
+    expect(s).toBe(state);
   });
 
   it('Ionic + TM still DEDUCING → no-op (state unchanged)', () => {
@@ -204,6 +248,36 @@ describe('CROSSOVER_COMPLETE / RESET', () => {
 describe('default', () => {
   it('unknown action → state unchanged', () => {
     expect(canvasReducer(INITIAL_STATE, { type: 'UNKNOWN' } as any)).toBe(INITIAL_STATE);
+  });
+});
+
+describe('autoIonize — empty oxidationStates non-TM → DEDUCING', () => {
+  it('non-TM with empty oxidationStates auto-ionises to DEDUCING', () => {
+    const noOxZone: ZoneState = {
+      symbol: 'X', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
+      valenceElectrons: 0, oxidationStates: [], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+    };
+    const s = canvasReducer(
+      { ...INITIAL_STATE, canvasPhase: 'SLOT_A_FILLED', slotA: { ...clZone, status: 'NEUTRAL' } },
+      { type: 'DROP_ELEMENT', slot: 'B', zone: noOxZone },
+    );
+    // noOxZone is Metal, so ionic — both autoIonize: clZone has oxidationStates → IONIZED,
+    // noOxZone has empty oxidationStates → DEDUCING
+    expect(s.slotB?.status).toBe('DEDUCING');
+  });
+});
+
+describe('DROP_ELEMENT — second drop into slot A', () => {
+  it('Metal + NonMetal second into slotA → Ionic, covers slot-assignment ternaries', () => {
+    // First drop into B, second into A — exercises action.slot === 'A' ternary paths
+    let s = canvasReducer(INITIAL_STATE, { type: 'DROP_ELEMENT', slot: 'B', zone: clZone });
+    s = canvasReducer(s, { type: 'DROP_ELEMENT', slot: 'A', zone: mgZone });
+    expect(s.bondingType).toBe('Ionic');
+    expect(s.canvasPhase).toBe('EXPLAINING');
+    expect(s.slotA?.symbol).toBe('Mg');
+    expect(s.slotA?.derivedCharge).toBe(2);
+    expect(s.slotB?.symbol).toBe('Cl');
+    expect(s.slotB?.derivedCharge).toBe(-1);
   });
 });
 
