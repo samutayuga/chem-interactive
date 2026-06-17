@@ -80,7 +80,7 @@ function BondingSummary({ bondingType, slotA, slotB }: { bondingType: BondingTyp
     const bN = 8 - slotB.valenceElectrons;
     return (
       <p className="text-sm text-white/70 text-center">
-        {slotA.symbol} needs {aN} more electron{aN !== 1 ? 's' : ''} and {slotB.symbol} needs {bN} — they share electrons to complete their octets.
+        {slotA.symbol} needs {aN} more electron{aN !== 1 ? 's' : ''} and {slotB.symbol} needs {bN} electron{bN !== 1 ? 's' : ''} — they share electrons to complete their octets.
       </p>
     );
   }
@@ -101,8 +101,8 @@ export function ExplanationModal() {
 
   if (canvasPhase !== 'EXPLAINING' || !slotA || !slotB || !bondingType) return null;
 
-  const bothIonised = slotA.status === 'IONIZED' && slotB.status === 'IONIZED';
-  const applyEnabled = bondingType !== 'Ionic' || bothIonised;
+  const neitherDeducing = slotA.status !== 'DEDUCING' && slotB.status !== 'DEDUCING';
+  const applyEnabled = bondingType !== 'Ionic' || neitherDeducing;
 
   return (
     <motion.div
