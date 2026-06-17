@@ -1,7 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIonicCanvas } from '../canvas/hooks';
-import { DeductionPanel } from './DeductionPanel';
 import type { Slot } from '../canvas/types';
 
 const SUPERSCRIPTS: Record<number, string> = {
@@ -25,15 +24,16 @@ const SLOT_COLORS: Record<Slot, { border: string; glow: string; label: string; t
 };
 
 export function DropZone({ slot }: Props) {
-  const { state } = useIonicCanvas();
+  const { state, dispatch } = useIonicCanvas();
   const zone = slot === 'A' ? state.slotA : state.slotB;
+  const { canvasPhase } = state;
 
-  const isActiveDeduction = state.activeDeductionSlot === slot;
-  const isLocked = state.activeDeductionSlot !== null && state.activeDeductionSlot !== slot;
+  const dropDisabled = canvasPhase === 'ANIMATING_CROSSOVER' || canvasPhase === 'EXPLAINING';
+  const showReplace  = zone !== null && canvasPhase !== 'ANIMATING_CROSSOVER';
 
   const { isOver, setNodeRef } = useDroppable({
     id: `dropzone-${slot}`,
-    disabled: isLocked || state.canvasPhase === 'ANIMATING_CROSSOVER',
+    disabled: dropDisabled,
   });
 
   const colors = SLOT_COLORS[slot];
@@ -42,12 +42,20 @@ export function DropZone({ slot }: Props) {
     <div
       ref={setNodeRef}
       className={[
-        'w-72 rounded-xl border-2 min-h-16 transition-all duration-200',
-        isLocked ? 'opacity-40 pointer-events-none' : '',
+        'relative w-72 rounded-xl border-2 min-h-16 transition-all duration-200',
         isOver ? `${colors.glow} shadow-lg` : colors.border,
-        isActiveDeduction ? colors.glow : '',
       ].join(' ')}
     >
+      {showReplace && (
+        <button
+          onClick={() => dispatch({ type: 'REPLACE_ELEMENT', slot })}
+          aria-label={`Replace ${slot === 'A' ? 'left' : 'right'} element`}
+          className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-white/10 hover:bg-red-500/30 text-white/40 hover:text-red-400 text-xs flex items-center justify-center transition-colors"
+        >
+          ×
+        </button>
+      )}
+
       <AnimatePresence mode="wait">
         {!zone && (
           <motion.div
@@ -71,9 +79,6 @@ export function DropZone({ slot }: Props) {
             <div className={`text-center py-3 text-2xl font-bold ${colors.text}`}>
               {zone.symbol}
             </div>
-            {isActiveDeduction && state.bondingType === 'Ionic' && (
-              <DeductionPanel slot={slot} zone={zone} />
-            )}
           </motion.div>
         )}
 

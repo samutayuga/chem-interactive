@@ -17,9 +17,8 @@ export const POLYATOMIC_IONS: PolyatomicIon[] = [
 ];
 
 export const INITIAL_STATE: CanvasState = {
-  canvasPhase:         'SELECTING',
-  bondingType:         null,
-  slotA:               null,
-  slotB:               null,
-  activeDeductionSlot: null,
+  canvasPhase: 'SELECTING',
+  bondingType: null,
+  slotA:       null,
+  slotB:       null,
 };

@@ -5,8 +5,7 @@ export type ElementClass = 'Metal' | 'NonMetal' | 'Metalloid';
 export type CanvasPhase =
   | 'SELECTING'
   | 'SLOT_A_FILLED'
-  | 'DEDUCING_CHARGE'
-  | 'READY_TO_CROSS'
+  | 'EXPLAINING'
   | 'ANIMATING_CROSSOVER'
   | 'SHOWING_COVALENT'
   | 'SHOWING_METALLIC'
@@ -25,18 +24,16 @@ export interface ZoneState {
 }
 
 export interface CanvasState {
-  canvasPhase:         CanvasPhase;
-  bondingType:         BondingType | null;
-  slotA:               ZoneState | null;
-  slotB:               ZoneState | null;
-  activeDeductionSlot: Slot | null;
+  canvasPhase: CanvasPhase;
+  bondingType: BondingType | null;
+  slotA:       ZoneState | null;
+  slotB:       ZoneState | null;
 }
 
 export type CanvasAction =
   | { type: 'DROP_ELEMENT';       slot: Slot; zone: ZoneState }
-  | { type: 'SUBMIT_DEDUCTION';   slot: Slot; loseOrGain: 'lose' | 'gain'; count: number }
   | { type: 'PICK_TM_CHARGE';     slot: Slot; charge: number }
-  | { type: 'CONFIRM_POLYATOMIC'; slot: Slot }
-  | { type: 'TRIGGER_CROSSOVER' }
+  | { type: 'DISMISS_EXPLANATION' }
+  | { type: 'REPLACE_ELEMENT';    slot: Slot }
   | { type: 'CROSSOVER_COMPLETE' }
   | { type: 'RESET' };

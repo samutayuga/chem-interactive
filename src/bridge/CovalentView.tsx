@@ -1,6 +1,18 @@
 import type { ZoneState } from '../canvas/types';
 import { gcd } from '../utils/gcd';
 
+// IUPAC electronegativity order for binary covalent formulas — lower index written first
+const IUPAC_ORDER: Record<string, number> = {
+  B:1, Si:2, C:3, Sb:4, As:5, P:6, N:7, H:8,
+  Te:9, Se:10, S:11, O:12, I:13, Br:14, Cl:15, F:16,
+};
+
+function iupacFirst(a: ZoneState, b: ZoneState): boolean {
+  const pa = IUPAC_ORDER[a.symbol] ?? 0;
+  const pb = IUPAC_ORDER[b.symbol] ?? 0;
+  return pa <= pb; // a comes first when equal or lower priority index
+}
+
 const CLR_A = 'var(--color-cation)';
 const CLR_B = 'var(--color-anion)';
 const CLR_LP = 'rgba(200,210,255,0.75)';
@@ -163,8 +175,17 @@ export function CovalentView({ slotA, slotB }: Props) {
       { x: cxC + dCP * Math.cos(Math.PI / 3),       y: cyC - dCP * Math.sin(Math.PI / 3) },
       { x: cxC + dCP * Math.cos(Math.PI / 3),       y: cyC + dCP * Math.sin(Math.PI / 3) },
     ];
+  } else if (nPeripheral === 4) {
+    W = 290; H = 290;
+    cxC = W / 2; cyC = H / 2;
+    peripheralPositions = [
+      { x: cxC,       y: cyC - dCP },  // top
+      { x: cxC + dCP, y: cyC       },  // right
+      { x: cxC,       y: cyC + dCP },  // bottom
+      { x: cxC - dCP, y: cyC       },  // left
+    ];
   } else {
-    // 4+: simplified two-atom view with count label
+    // 5+: simplified two-atom view with count label
     W = 260; H = 130;
     cxC = W / 2 - dCP / 2; cyC = H / 2;
     peripheralPositions = [{ x: cxC + dCP, y: cyC }];
@@ -173,16 +194,16 @@ export function CovalentView({ slotA, slotB }: Props) {
   // Build atom data for bond angle calculation
   const centralBondAngles = peripheralPositions.map(p => angleTo(cxC, cyC, p.x, p.y));
 
-  // Formula JSX
+  // Formula JSX — order by IUPAC electronegativity (less EN element first)
   const homonuclear = slotA.symbol === slotB.symbol;
-  const symCentral = central.symbol;
-  const symPeripheral = peripheral.symbol;
+  const aFirst = iupacFirst(slotA, slotB);
+  const [fstSym, fstN, sndSym, sndN] = aFirst
+    ? [slotA.symbol, nA, slotB.symbol, nB]
+    : [slotB.symbol, nB, slotA.symbol, nA];
   const formulaEl = homonuclear ? (
-    <>{symCentral}{nA + nB > 1 && <sub>{nA + nB}</sub>}</>
-  ) : centralIsA ? (
-    <>{symCentral}{nCentral > 1 && <sub>{nCentral}</sub>}{symPeripheral}{nPeripheral > 1 && <sub>{nPeripheral}</sub>}</>
+    <>{slotA.symbol}{nA + nB > 1 && <sub>{nA + nB}</sub>}</>
   ) : (
-    <>{symPeripheral}{nPeripheral > 1 && <sub>{nPeripheral}</sub>}{symCentral}{nCentral > 1 && <sub>{nCentral}</sub>}</>
+    <>{fstSym}{fstN > 1 && <sub>{fstN}</sub>}{sndSym}{sndN > 1 && <sub>{sndN}</sub>}</>
   );
 
   const bondLabel = bondOrder === 1 ? 'Single' : bondOrder === 2 ? 'Double' : 'Triple';
@@ -222,7 +243,7 @@ export function CovalentView({ slotA, slotB }: Props) {
         ))}
 
         {/* Count badge when nPeripheral > 1 and we truncated */}
-        {nPeripheral > 3 && (
+        {nPeripheral > 4 && (
           <text x={W - 10} y={15} textAnchor="end" fill="rgba(255,255,255,0.4)" fontSize="9">
             ×{nPeripheral}
           </text>

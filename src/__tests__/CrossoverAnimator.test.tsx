@@ -18,27 +18,27 @@ vi.mock('framer-motion', () => ({
 }));
 
 const mg: ZoneState = {
-  symbol: 'Mg', isPolyatomic: false, isTransition: false,
+  symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
   valenceElectrons: 2, oxidationStates: [2],
   derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
 };
 const cl: ZoneState = {
-  symbol: 'Cl', isPolyatomic: false, isTransition: false,
+  symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
   valenceElectrons: 7, oxidationStates: [-1],
   derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
 const ca: ZoneState = {
-  symbol: 'Ca', isPolyatomic: false, isTransition: false,
+  symbol: 'Ca', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
   valenceElectrons: 2, oxidationStates: [2],
   derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
 };
 const o: ZoneState = {
-  symbol: 'O', isPolyatomic: false, isTransition: false,
+  symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
   valenceElectrons: 6, oxidationStates: [-2],
   derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
 };
 const oh: ZoneState = {
-  symbol: 'OH', isPolyatomic: true, isTransition: false,
+  symbol: 'OH', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
   valenceElectrons: 0, oxidationStates: [-1],
   derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
@@ -77,6 +77,39 @@ describe('CrossoverAnimator animation flow', () => {
   });
 });
 
+describe('CrossoverAnimator — cation subscript > 1 (Fe3+ + O2-)', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  const runSteps = async (n = 5) => {
+    for (let i = 0; i < n; i++) {
+      await act(async () => { vi.runAllTimers(); });
+    }
+  };
+
+  it('calls onComplete after full animation — both subscripts > 1', async () => {
+    const fe3: ZoneState = {
+      symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
+      valenceElectrons: 2, oxidationStates: [3],
+      derivedCharge: 3, wrongCount: 0, status: 'IONIZED',
+    };
+    const o2: ZoneState = {
+      symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
+      valenceElectrons: 6, oxidationStates: [-2],
+      derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
+    };
+    const onComplete = vi.fn();
+    const { getByTestId } = render(
+      <CrossoverAnimator cation={fe3} anion={o2} onComplete={onComplete} />
+    );
+    // finalCationSub = |anion charge| / gcd = 2/1 = 2, finalAnionSub = |cation charge| / gcd = 3/1 = 3
+    expect(getByTestId('cation-sub').textContent).toBe('2');
+    expect(getByTestId('anion-sub').textContent).toBe('3');
+    await runSteps();
+    expect(onComplete).toHaveBeenCalled();
+  });
+});
+
 describe('CrossoverAnimator subscript computation', () => {
   it('Mg²⁺ + Cl⁻ → cationSub=1, anionSub=2', () => {
     const onComplete = vi.fn();
@@ -105,7 +138,7 @@ describe('CrossoverAnimator subscript computation', () => {
 
   it('no brackets when anion sub === 1', () => {
     const na: ZoneState = {
-      symbol: 'Na', isPolyatomic: false, isTransition: false,
+      symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
       valenceElectrons: 1, oxidationStates: [1],
       derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
     };

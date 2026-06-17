@@ -4,6 +4,7 @@ import { useAllElements } from '../wasm/hooks';
 import { useIonicCanvas } from '../canvas/hooks';
 import { POLYATOMIC_IONS } from '../canvas/constants';
 import { ElementToken, PolyatomicToken } from './ElementToken';
+import type { BondHint } from './ElementToken';
 import { elementColor } from '../utils/elementColor';
 import type { ElementClass } from '../canvas/types';
 
@@ -15,23 +16,19 @@ function formatCategory(cat: string): string {
   return cat.replace(/([A-Z])/g, ' $1').trim();
 }
 
-type HighlightHint = 'ionic' | 'covalent' | 'metallic' | 'none' | null;
-
-function bondHint(firstClass: ElementClass, elClass: ElementClass, category: string): HighlightHint {
+function bondHint(
+  firstClass: ElementClass, elClass: ElementClass,
+  category: string, firstIsPolyatomic: boolean,
+): BondHint {
   if (category === 'NobleGas') return 'none';
+  // Polyatomic ions always form ionic compounds
+  if (firstIsPolyatomic) return 'ionic';
   if (firstClass === 'Metal' && elClass === 'Metal') return 'metallic';
   if (firstClass === 'NonMetal' && elClass === 'NonMetal') return 'covalent';
   if ((firstClass === 'Metalloid' || firstClass === 'NonMetal') &&
       (elClass === 'Metalloid' || elClass === 'NonMetal')) return 'covalent';
   return 'ionic';
 }
-
-const HINT_RING: Record<NonNullable<HighlightHint>, string> = {
-  ionic:    'ring-2 ring-cyan-400/70',
-  covalent: 'ring-2 ring-emerald-400/70',
-  metallic: 'ring-2 ring-amber-400/70',
-  none:     'opacity-20',
-};
 
 export function ElementTray() {
   const [tab, setTab] = useState<'elements' | 'polyatomic'>('elements');
@@ -40,19 +37,18 @@ export function ElementTray() {
   const all = useAllElements();
   const { state } = useIonicCanvas();
 
-  const isDraggingDisabled = state.canvasPhase === 'ANIMATING_CROSSOVER'
-    || state.canvasPhase === 'SHOWING_COVALENT'
-    || state.canvasPhase === 'SHOWING_METALLIC';
+  const isDraggingDisabled = state.canvasPhase === 'ANIMATING_CROSSOVER';
 
   const slotAFilled = state.slotA !== null;
   const slotBFilled = state.slotB !== null;
   const bothFilled  = slotAFilled && slotBFilled;
 
   // Highlight only when exactly one slot filled
-  const firstSlotClass: ElementClass | null =
-    (!bothFilled && slotAFilled) ? state.slotA!.elementClass
-    : (!bothFilled && slotBFilled) ? state.slotB!.elementClass
+  const firstSlot = (!bothFilled && slotAFilled) ? state.slotA
+    : (!bothFilled && slotBFilled) ? state.slotB
     : null;
+  const firstSlotClass: ElementClass | null = firstSlot?.elementClass ?? null;
+  const firstIsPolyatomic = firstSlot?.isPolyatomic ?? false;
 
   const isLanthanide = (z: number) => z >= 57 && z <= 71;
   const isActinide   = (z: number) => z >= 89 && z <= 103;
@@ -85,9 +81,9 @@ export function ElementTray() {
         {/* Bonding legend — shown when first element dropped */}
         {firstSlotClass && (
           <div className="flex gap-3 items-center ml-4 text-[9px] text-white/50">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-400/70 inline-block" />Ionic</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400/70 inline-block" />Covalent</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400/70 inline-block" />Metallic</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500/80 inline-block" />Ionic</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500/80 inline-block" />Covalent</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500/80 inline-block" />Metallic</span>
           </div>
         )}
       </div>
@@ -150,17 +146,16 @@ export function ElementTray() {
 
                       {colEls.map(el => {
                         const hint = firstSlotClass
-                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category)
+                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
                           : null;
                         return (
                           <div
                             key={el.symbol}
                             style={{ gridColumn: 1, gridRow: el.period }}
-                            className={hint ? HINT_RING[hint] : ''}
                             onMouseEnter={() => setHoveredPeriod(el.period)}
                             onMouseLeave={() => setHoveredPeriod(null)}
                           >
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" />
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
                           </div>
                         );
                       })}
@@ -181,11 +176,11 @@ export function ElementTray() {
                     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, 3.5rem)`, gap: '2px' }}>
                       {lanthanides.map(el => {
                         const hint = firstSlotClass
-                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category)
+                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
                           : null;
                         return (
-                          <div key={el.symbol} className={hint ? HINT_RING[hint] : ''}>
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" />
+                          <div key={el.symbol}>
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
                           </div>
                         );
                       })}
@@ -199,11 +194,11 @@ export function ElementTray() {
                     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, 3.5rem)`, gap: '2px' }}>
                       {actinides.map(el => {
                         const hint = firstSlotClass
-                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category)
+                          ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
                           : null;
                         return (
-                          <div key={el.symbol} className={hint ? HINT_RING[hint] : ''}>
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" />
+                          <div key={el.symbol}>
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
                           </div>
                         );
                       })}
@@ -218,12 +213,9 @@ export function ElementTray() {
 
         {tab === 'polyatomic' && (
           <div className="flex gap-2 flex-wrap">
-            {POLYATOMIC_IONS.map(ion => {
-              const zoneFilled = slotAFilled && slotBFilled;
-              return (
-                <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled || zoneFilled} />
-              );
-            })}
+            {POLYATOMIC_IONS.map(ion => (
+              <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled} />
+            ))}
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { CrossoverAnimator } from './CrossoverAnimator';
 import { BondingDiagram } from './BondingDiagram';
 import { CovalentView } from './CovalentView';
 import { MetallicView } from './MetallicView';
+import { ExplanationModal } from './ExplanationModal';
 import { gcd } from '../utils/gcd';
 import type { ZoneState } from '../canvas/types';
 
@@ -22,6 +23,13 @@ function buildFormulaJsx(
 }
 
 function ionicPair(slotA: ZoneState, slotB: ZoneState): { cation: ZoneState; anion: ZoneState } {
+  // Use derivedCharge when available — correctly handles H⁺ acids and polyatomic anions
+  if (slotA.derivedCharge !== null && slotB.derivedCharge !== null) {
+    return slotA.derivedCharge > 0
+      ? { cation: slotA, anion: slotB }
+      : { cation: slotB, anion: slotA };
+  }
+  // Fallback for TM DEDUCING state
   const aCation = slotA.elementClass === 'Metal' || slotA.elementClass === 'Metalloid';
   return aCation ? { cation: slotA, anion: slotB } : { cation: slotB, anion: slotA };
 }
@@ -30,11 +38,10 @@ export function BridgeColumn() {
   const { state, dispatch } = useIonicCanvas();
   const { slotA, slotB, canvasPhase, bondingType } = state;
 
-  const isReadyToCross      = canvasPhase === 'READY_TO_CROSS';
-  const isAnimating         = canvasPhase === 'ANIMATING_CROSSOVER';
-  const isCompleteIonic     = canvasPhase === 'COMPLETE' && bondingType === 'Ionic';
-  const isShowingCovalent   = canvasPhase === 'SHOWING_COVALENT';
-  const isShowingMetallic   = canvasPhase === 'SHOWING_METALLIC';
+  const isAnimating       = canvasPhase === 'ANIMATING_CROSSOVER';
+  const isCompleteIonic   = canvasPhase === 'COMPLETE' && bondingType === 'Ionic';
+  const isShowingCovalent = canvasPhase === 'SHOWING_COVALENT';
+  const isShowingMetallic = canvasPhase === 'SHOWING_METALLIC';
 
   let formulaDisplay: ReactNode = null;
   if (isCompleteIonic && slotA && slotB && slotA.derivedCharge !== null && slotB.derivedCharge !== null) {
@@ -53,30 +60,9 @@ export function BridgeColumn() {
     <div className="flex flex-col items-center justify-center gap-4 px-2 min-w-52">
       <span className="text-2xl text-accent/60">⇌</span>
 
-      <AnimatePresence mode="wait">
+      {canvasPhase === 'EXPLAINING' && <ExplanationModal />}
 
-        {isReadyToCross && slotA && slotB && (() => {
-          const { cation, anion } = ionicPair(slotA, slotB);
-          return (
-            <motion.div
-              key="crossover-btn"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-3"
-            >
-              <BondingDiagram cation={cation} anion={anion} />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => dispatch({ type: 'TRIGGER_CROSSOVER' })}
-                className="px-3 py-2 rounded-xl border-2 border-accent bg-accent/20 text-accent text-xs font-bold hover:bg-accent/30 transition-colors shadow-lg shadow-accent/20"
-              >
-                Cross Over →
-              </motion.button>
-            </motion.div>
-          );
-        })()}
+      <AnimatePresence mode="wait">
 
         {isAnimating && slotA && slotB && (() => {
           const { cation, anion } = ionicPair(slotA, slotB);

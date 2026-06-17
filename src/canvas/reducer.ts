@@ -15,92 +15,80 @@ function otherSlot(slot: Slot): Slot {
 
 function determineBonding(a: ElementClass, b: ElementClass): BondingType {
   if (a === 'Metal' && b === 'Metal') return 'Metallic';
-  if (a === 'NonMetal' && b === 'NonMetal') return 'Covalent';
   if ((a === 'Metalloid' || a === 'NonMetal') && (b === 'Metalloid' || b === 'NonMetal')) return 'Covalent';
   return 'Ionic';
 }
 
-function isCationSlot(zone: ZoneState): boolean {
-  return zone.elementClass === 'Metal' || zone.elementClass === 'Metalloid';
+function autoIonize(zone: ZoneState): ZoneState {
+  if (zone.isTransition) return { ...zone, status: 'DEDUCING' };
+  if (!zone.oxidationStates.length) return { ...zone, status: 'DEDUCING' };
+  return { ...zone, status: 'IONIZED', derivedCharge: zone.oxidationStates[0] };
 }
 
 export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasState {
   switch (action.type) {
 
     case 'DROP_ELEMENT': {
-      const newZone: ZoneState = { ...action.zone, status: 'DEDUCING', wrongCount: 0 };
+      const newZone: ZoneState = { ...action.zone, status: 'NEUTRAL', wrongCount: 0 };
+
+      // Both slots filled → new drop resets the other slot and restarts
+      if (state.slotA !== null && state.slotB !== null) {
+        const next    = setSlot(state, action.slot, newZone);
+        const cleared = setSlot(next, otherSlot(action.slot), null);
+        return { ...cleared, canvasPhase: 'SLOT_A_FILLED', bondingType: null };
+      }
+
       const next = setSlot(state, action.slot, newZone);
       const other = getSlot(next, otherSlot(action.slot));
 
       if (!other) {
-        return { ...next, canvasPhase: 'SLOT_A_FILLED', bondingType: null, activeDeductionSlot: null };
+        return { ...next, canvasPhase: 'SLOT_A_FILLED', bondingType: null };
       }
 
-      const bondingType = determineBonding(newZone.elementClass, other.elementClass);
+      // Polyatomic ions always form ionic compounds
+      const bondingType = (newZone.isPolyatomic || other.isPolyatomic)
+        ? 'Ionic'
+        : determineBonding(newZone.elementClass, other.elementClass);
 
-      if (bondingType === 'Covalent') {
-        return { ...next, bondingType, canvasPhase: 'SHOWING_COVALENT', activeDeductionSlot: null };
-      }
-      if (bondingType === 'Metallic') {
-        return { ...next, bondingType, canvasPhase: 'SHOWING_METALLIC', activeDeductionSlot: null };
-      }
-      // Ionic — start deduction on the newly dropped element
-      return { ...next, bondingType, canvasPhase: 'DEDUCING_CHARGE', activeDeductionSlot: action.slot };
-    }
-
-    case 'SUBMIT_DEDUCTION': {
-      const zone = getSlot(state, action.slot);
-      if (!zone) return state;
-
-      const computedCharge = action.loseOrGain === 'lose' ? action.count : -action.count;
-      const mustBeCation = isCationSlot(zone);
-      const sideCorrect = mustBeCation ? computedCharge > 0 : computedCharge < 0;
-      const isCorrect = sideCorrect && zone.oxidationStates.includes(computedCharge);
-
-      if (!isCorrect) {
-        return setSlot(state, action.slot, { ...zone, wrongCount: zone.wrongCount + 1 });
+      if (bondingType === 'Covalent' || bondingType === 'Metallic') {
+        return { ...next, bondingType, canvasPhase: 'EXPLAINING' };
       }
 
-      const ionized: ZoneState = { ...zone, status: 'IONIZED', derivedCharge: computedCharge, wrongCount: 0 };
-      const next = setSlot(state, action.slot, ionized);
-      const other = getSlot(next, otherSlot(action.slot));
-
-      if (other?.status === 'IONIZED') {
-        return { ...next, canvasPhase: 'READY_TO_CROSS', activeDeductionSlot: null };
-      }
-      // Move deduction to other slot
-      return { ...next, canvasPhase: 'DEDUCING_CHARGE', activeDeductionSlot: otherSlot(action.slot) };
+      // Ionic — auto-ionise both slots immediately
+      const ionizedNew   = autoIonize(newZone);
+      const ionizedOther = autoIonize(other);
+      const slotA = action.slot === 'A' ? ionizedNew : ionizedOther;
+      const slotB = action.slot === 'B' ? ionizedNew : ionizedOther;
+      return { ...next, slotA, slotB, bondingType, canvasPhase: 'EXPLAINING' };
     }
 
     case 'PICK_TM_CHARGE': {
       const zone = getSlot(state, action.slot);
       if (!zone) return state;
       const ionized: ZoneState = { ...zone, status: 'IONIZED', derivedCharge: action.charge };
-      const next = setSlot(state, action.slot, ionized);
-      const other = getSlot(next, otherSlot(action.slot));
-
-      if (other?.status === 'IONIZED') {
-        return { ...next, canvasPhase: 'READY_TO_CROSS', activeDeductionSlot: null };
-      }
-      return { ...next, canvasPhase: 'DEDUCING_CHARGE', activeDeductionSlot: otherSlot(action.slot) };
+      return setSlot(state, action.slot, ionized);
     }
 
-    case 'CONFIRM_POLYATOMIC': {
-      const zone = getSlot(state, action.slot);
-      if (!zone) return state;
-      const charge = zone.oxidationStates[0];
-      const ionized: ZoneState = { ...zone, status: 'IONIZED', derivedCharge: charge };
-      const next = setSlot(state, action.slot, ionized);
-      const other = getSlot(next, otherSlot(action.slot));
-
-      if (other?.status === 'IONIZED') {
-        return { ...next, canvasPhase: 'READY_TO_CROSS', activeDeductionSlot: null };
-      }
-      return { ...next, canvasPhase: 'DEDUCING_CHARGE', activeDeductionSlot: otherSlot(action.slot) };
+    case 'DISMISS_EXPLANATION': {
+      if (
+        state.bondingType === 'Ionic' &&
+        (state.slotA?.status === 'DEDUCING' || state.slotB?.status === 'DEDUCING')
+      ) return state;
+      if (state.bondingType === 'Ionic')    return { ...state, canvasPhase: 'ANIMATING_CROSSOVER' };
+      if (state.bondingType === 'Covalent') return { ...state, canvasPhase: 'SHOWING_COVALENT' };
+      if (state.bondingType === 'Metallic') return { ...state, canvasPhase: 'SHOWING_METALLIC' };
+      return state;
     }
 
-    case 'TRIGGER_CROSSOVER':
-      return { ...state, canvasPhase: 'ANIMATING_CROSSOVER' };
+    case 'REPLACE_ELEMENT': {
+      const other = getSlot(state, otherSlot(action.slot));
+      const resetOther = other
+        ? { ...other, status: 'NEUTRAL' as const, derivedCharge: null, wrongCount: 0 }
+        : null;
+      const cleared = setSlot(state, action.slot, null);
+      const reset   = setSlot(cleared, otherSlot(action.slot), resetOther);
+      return { ...reset, canvasPhase: resetOther ? 'SLOT_A_FILLED' : 'SELECTING', bondingType: null };
+    }
 
     case 'CROSSOVER_COMPLETE':
       return { ...state, canvasPhase: 'COMPLETE' };

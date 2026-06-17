@@ -46,10 +46,19 @@ function ElementTooltip({ element }: { element: WasmElement }) {
   );
 }
 
+export type BondHint = 'ionic' | 'covalent' | 'metallic' | 'none' | null;
+
+const HINT_BG: Record<string, string> = {
+  ionic:    'rgba(59, 130, 246, 0.35)',   // blue-500
+  covalent: 'rgba(34, 197, 94,  0.35)',   // green-500
+  metallic: 'rgba(249, 115, 22, 0.35)',   // orange-500
+};
+
 interface Props {
   element: WasmElement;
   disabled?: boolean;
   size?: 'sm' | 'md';
+  bondHint?: BondHint;
 }
 
 export function makeZoneState(el: WasmElement): ZoneState {
@@ -66,15 +75,16 @@ export function makeZoneState(el: WasmElement): ZoneState {
   };
 }
 
-export function ElementToken({ element, disabled = false, size = 'md' }: Props) {
+export function ElementToken({ element, disabled = false, size = 'md', bondHint }: Props) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `element-${element.symbol}`,
     data: { zoneState: makeZoneState(element) },
-    disabled,
+    disabled: disabled || bondHint === 'none',
   });
 
   const color = elementClassColor(element.class);
   const isSm = size === 'sm';
+  const bgColor = bondHint && bondHint !== 'none' ? HINT_BG[bondHint] : undefined;
 
   return (
     <Tooltip title={<ElementTooltip element={element} />} placement="bottom" arrow enterDelay={300}>
@@ -89,12 +99,14 @@ export function ElementToken({ element, disabled = false, size = 'md' }: Props) 
           'hover:scale-110 hover:z-10',
           isDragging ? 'opacity-30 scale-95' : 'opacity-100',
           disabled ? 'opacity-20 cursor-not-allowed pointer-events-none' : '',
+          bondHint === 'none' ? 'opacity-20 pointer-events-none' : '',
         ].join(' ')}
         style={{
           borderColor: color + '55',
+          backgroundColor: bgColor,
           ...(isSm ? { width: '3.5rem', height: '3.5rem' } : {}),
         }}
-        onMouseEnter={e => { if (!disabled) (e.currentTarget as HTMLDivElement).style.borderColor = color; }}
+        onMouseEnter={e => { if (!disabled && bondHint !== 'none') (e.currentTarget as HTMLDivElement).style.borderColor = color; }}
         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = color + '55'; }}
       >
         <div className="flex items-center justify-center">
@@ -117,6 +129,7 @@ interface PolyTokenProps {
 export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
   const zoneState: ZoneState = {
     symbol:           ion.symbol,
+    elementClass:     'NonMetal',
     isPolyatomic:     true,
     isTransition:     false,
     valenceElectrons: 0,
