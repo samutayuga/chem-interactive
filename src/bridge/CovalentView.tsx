@@ -109,21 +109,9 @@ function lonePairAngles(bondAngles: number[], nLone: number): number[] {
   return scored.slice(0, nLone).map(s => s.a);
 }
 
-interface AtomData {
-  symbol: string;
-  ve: number;
-  color: string;
-  cx: number;
-  cy: number;
-  r: number;
-  bondAngles: number[]; // angles pointing AWAY from this atom toward its bonds
-}
-
 function angleTo(x1: number, y1: number, x2: number, y2: number) {
   return Math.atan2(y2 - y1, x2 - x1);
 }
-
-interface Bond { a: number; b: number; } // indices into atoms array
 
 interface Props {
   slotA: ZoneState;
@@ -140,7 +128,6 @@ export function CovalentView({ slotA, slotB }: Props) {
   const centralColor   = centralIsA ? CLR_A : CLR_B;
   const peripheralColor = centralIsA ? CLR_B : CLR_A;
   const nPeripheral = centralIsA ? nB : nA;
-  const nCentral    = centralIsA ? nA : nB;
 
   // Central lone pairs = ve_central - bondOrder * nPeripheral
   const centralLone = Math.max(0, Math.floor((central.valenceElectrons - bondOrder * nPeripheral) / 2));
