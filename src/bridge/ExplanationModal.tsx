@@ -70,13 +70,13 @@ function SlotPanel({ zone, slot }: { zone: ZoneState; slot: Slot }) {
   }
   if (zone.status === 'NEUTRAL') {
     return (
-      <div className="rounded-lg bg-white/5 p-3 text-sm text-white/80">
+      <div className="rounded-lg bg-white/5 p-2 md:p-3 text-xs md:text-sm text-white/80">
         {zone.symbol} — charge to be determined
       </div>
     );
   }
   return (
-    <div className="rounded-lg bg-white/5 p-3 text-sm text-white/80">
+    <div className="rounded-lg bg-white/5 p-2 md:p-3 text-xs md:text-sm text-white/80">
       {chargeExplanation(zone)}
     </div>
   );
@@ -87,7 +87,7 @@ function BondingSummary({ bondingType, slotA, slotB }: { bondingType: BondingTyp
     const { cation, anion } = ionicCation(slotA, slotB);
     if (cation.status !== 'IONIZED' || anion.status !== 'IONIZED') return null;
     return (
-      <p className="text-sm text-white/70 text-center">
+      <p className="text-xs md:text-sm text-white/70 text-center">
         Crossover method: each charge becomes the other ion's subscript →{' '}
         <span className="font-bold text-white">{formulaPreview(cation, anion)}</span>
       </p>
@@ -97,14 +97,14 @@ function BondingSummary({ bondingType, slotA, slotB }: { bondingType: BondingTyp
     const aN = electronsNeeded(slotA.valenceElectrons);
     const bN = electronsNeeded(slotB.valenceElectrons);
     return (
-      <p className="text-sm text-white/70 text-center">
+      <p className="text-xs md:text-sm text-white/70 text-center">
         {slotA.symbol} needs {aN} more electron{aN !== 1 ? 's' : ''} and {slotB.symbol} needs {bN} electron{bN !== 1 ? 's' : ''} — they share electrons to complete their octets.
       </p>
     );
   }
   const homonuclear = slotA.symbol === slotB.symbol;
   return (
-    <p className="text-sm text-white/70 text-center">
+    <p className="text-xs md:text-sm text-white/70 text-center">
       {homonuclear
         ? <>Each <strong className="text-white">{slotA.symbol}</strong> atom contributes <strong className="text-white">{slotA.valenceElectrons}</strong> valence electron{slotA.valenceElectrons !== 1 ? 's' : ''} to a delocalised electron sea.</>
         : <>Each <strong className="text-white">{slotA.symbol}</strong> atom contributes <strong className="text-white">{slotA.valenceElectrons}</strong> electron{slotA.valenceElectrons !== 1 ? 's' : ''} and each <strong className="text-white">{slotB.symbol}</strong> atom contributes <strong className="text-white">{slotB.valenceElectrons}</strong> electron{slotB.valenceElectrons !== 1 ? 's' : ''}.</>
@@ -136,9 +136,9 @@ export function ExplanationModal() {
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-surface border border-muted/30 rounded-2xl p-6 max-w-md w-full mx-4 flex flex-col gap-4 shadow-2xl"
+        className="bg-surface border border-muted/30 rounded-2xl p-4 md:p-6 max-w-md w-full mx-3 max-h-[85vh] overflow-y-auto flex flex-col gap-3 md:gap-4 shadow-2xl"
       >
-        <h2 className="text-lg font-bold text-white text-center">
+        <h2 className="text-base md:text-lg font-bold text-white text-center">
           {BONDING_LABEL[bondingType]}
         </h2>
 
