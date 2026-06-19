@@ -91,18 +91,26 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   const bgColor = bondHint && bondHint !== 'none' ? HINT_BG[bondHint] : undefined;
   const isSelected = selectedElement?.symbol === element.symbol;
   const isInactive = disabled || bondHint === 'none';
-  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  function handlePointerDown(e: React.PointerEvent) {
-    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
 
-  function handlePointerUp(e: React.PointerEvent) {
-    const start = pointerDownPos.current;
-    pointerDownPos.current = null;
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
     if (!start) return;
-    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) return;
-    e.stopPropagation();
+    const t = e.changedTouches[0];
+    if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) return;
+    e.preventDefault(); // prevent ghost click on iOS
+    if (isInactive) return;
+    if (isSelected) clearSelection();
+    else selectElement(makeZoneState(element));
+  }
+
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation(); // prevent document click listener from clearing selection
     if (isInactive) return;
     if (isSelected) clearSelection();
     else selectElement(makeZoneState(element));
@@ -114,8 +122,9 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
         className={[
           'group flex flex-col items-center justify-center',
           // responsive sizing: xs on mobile, sm on md+
@@ -174,17 +183,25 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
   });
 
   const isSelected = selectedElement?.symbol === ion.symbol;
-  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  function handlePointerDown(e: React.PointerEvent) {
-    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
 
-  function handlePointerUp(e: React.PointerEvent) {
-    const start = pointerDownPos.current;
-    pointerDownPos.current = null;
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
     if (!start) return;
-    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) return;
+    const t = e.changedTouches[0];
+    if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) return;
+    e.preventDefault();
+    if (disabled) return;
+    if (isSelected) clearSelection();
+    else selectElement(zoneState);
+  }
+
+  function handleClick(e: React.MouseEvent) {
     e.stopPropagation();
     if (disabled) return;
     if (isSelected) clearSelection();
@@ -197,8 +214,9 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
         className={[
           'flex flex-col items-center justify-center',
           'px-3 h-16 rounded-lg border cursor-grab select-none',

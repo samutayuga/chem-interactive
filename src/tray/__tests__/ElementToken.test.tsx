@@ -61,27 +61,27 @@ describe('ElementToken tap interaction', () => {
     mockIsDragging = false;
   });
 
-  it('calls selectElement when tapped and nothing selected', () => {
+  it('calls selectElement when clicked and nothing selected', () => {
     mockCtx(null);
     render(<ElementToken element={mgEl} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockSelectElement).toHaveBeenCalledWith(
       expect.objectContaining({ symbol: 'Mg' })
     );
   });
 
-  it('calls clearSelection when tapping already-selected element', () => {
+  it('calls clearSelection when clicking already-selected element', () => {
     mockCtx('Mg');
     render(<ElementToken element={mgEl} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockClearSelection).toHaveBeenCalled();
     expect(mockSelectElement).not.toHaveBeenCalled();
   });
 
-  it('calls selectElement when tapping different element while another selected', () => {
+  it('calls selectElement when clicking different element while another selected', () => {
     mockCtx('Cl');
     render(<ElementToken element={mgEl} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockSelectElement).toHaveBeenCalledWith(
       expect.objectContaining({ symbol: 'Mg' })
     );
@@ -91,6 +91,53 @@ describe('ElementToken tap interaction', () => {
     mockCtx(null);
     render(<ElementToken element={mgEl} disabled />);
     fireEvent.click(document.body); // disabled has pointer-events-none, click body instead
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('calls selectElement on touch tap (mobile path)', () => {
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 10, clientY: 10 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 10, clientY: 10 }] });
+    expect(mockSelectElement).toHaveBeenCalledWith(
+      expect.objectContaining({ symbol: 'Mg' })
+    );
+  });
+
+  it('calls clearSelection on touch when already selected', () => {
+    mockCtx('Mg');
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    expect(mockClearSelection).toHaveBeenCalled();
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when isInactive (bondHint none)', () => {
+    mockCtx(null);
+    render(<ElementToken element={mgEl} bondHint="none" />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when moved more than 8px (drag gesture)', () => {
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 0, clientY: 0 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 50, clientY: 50 }] });
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when touchEnd fires without prior touchStart', () => {
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 0, clientY: 0 }] });
     expect(mockSelectElement).not.toHaveBeenCalled();
   });
 
@@ -106,20 +153,6 @@ describe('ElementToken tap interaction', () => {
     expect(container.firstChild).not.toHaveClass('ring-2');
   });
 
-  it('does not select when pointerUp fires without prior pointerDown', () => {
-    mockCtx(null);
-    render(<ElementToken element={mgEl} />);
-    fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
-    expect(mockSelectElement).not.toHaveBeenCalled();
-  });
-
-  it('does not select when pointer moved more than 8px (drag gesture)', () => {
-    mockCtx(null);
-    render(<ElementToken element={mgEl} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 });
-    fireEvent.pointerUp(screen.getByRole('button'), { clientX: 50, clientY: 50 });
-    expect(mockSelectElement).not.toHaveBeenCalled();
-  });
 
   it('renders opacity-50 on unselected token when another element is selected', () => {
     mockCtx('Cl');
@@ -144,7 +177,7 @@ describe('ElementToken tap interaction', () => {
   it('does not call selectElement when bondHint is none', () => {
     mockCtx(null);
     render(<ElementToken element={mgEl} bondHint="none" />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockSelectElement).not.toHaveBeenCalled();
   });
 
@@ -198,19 +231,19 @@ describe('PolyatomicToken tap interaction', () => {
     mockIsDragging = false;
   });
 
-  it('calls selectElement when tapped and nothing selected', () => {
+  it('calls selectElement when clicked and nothing selected', () => {
     mockCtx(null);
     render(<PolyatomicToken ion={sulfateIon} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockSelectElement).toHaveBeenCalledWith(
       expect.objectContaining({ symbol: 'SO4', isPolyatomic: true })
     );
   });
 
-  it('calls clearSelection when tapping already-selected polyatomic ion', () => {
+  it('calls clearSelection when clicking already-selected polyatomic ion', () => {
     mockCtx('SO4');
     render(<PolyatomicToken ion={sulfateIon} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 }); fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
+    fireEvent.click(screen.getByRole('button'));
     expect(mockClearSelection).toHaveBeenCalled();
     expect(mockSelectElement).not.toHaveBeenCalled();
   });
@@ -219,7 +252,53 @@ describe('PolyatomicToken tap interaction', () => {
     mockCtx(null);
     const { container } = render(<PolyatomicToken ion={sulfateIon} disabled />);
     // fireEvent bypasses pointer-events-none in jsdom so we can test the JS guard
-    fireEvent.pointerDown(container.firstChild as Element, { clientX: 0, clientY: 0 }); fireEvent.pointerUp(container.firstChild as Element, { clientX: 0, clientY: 0 });
+    fireEvent.click(container.firstChild as Element);
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('calls selectElement on touch tap (mobile path)', () => {
+    mockCtx(null);
+    render(<PolyatomicToken ion={sulfateIon} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    expect(mockSelectElement).toHaveBeenCalledWith(
+      expect.objectContaining({ symbol: 'SO4', isPolyatomic: true })
+    );
+  });
+
+  it('calls clearSelection on touch when already selected', () => {
+    mockCtx('SO4');
+    render(<PolyatomicToken ion={sulfateIon} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    expect(mockClearSelection).toHaveBeenCalled();
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when disabled', () => {
+    mockCtx(null);
+    const { container } = render(<PolyatomicToken ion={sulfateIon} disabled />);
+    fireEvent.touchStart(container.firstChild as Element, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(container.firstChild as Element, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when moved more than 8px', () => {
+    mockCtx(null);
+    render(<PolyatomicToken ion={sulfateIon} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 0, clientY: 0 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 50, clientY: 50 }] });
+    expect(mockSelectElement).not.toHaveBeenCalled();
+  });
+
+  it('does not select on touch when touchEnd fires without prior touchStart', () => {
+    mockCtx(null);
+    render(<PolyatomicToken ion={sulfateIon} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 0, clientY: 0 }] });
     expect(mockSelectElement).not.toHaveBeenCalled();
   });
 
@@ -233,21 +312,6 @@ describe('PolyatomicToken tap interaction', () => {
     mockCtx(null);
     const { container } = render(<PolyatomicToken ion={sulfateIon} />);
     expect(container.firstChild).not.toHaveClass('ring-2');
-  });
-
-  it('does not select when pointerUp fires without prior pointerDown', () => {
-    mockCtx(null);
-    render(<PolyatomicToken ion={sulfateIon} />);
-    fireEvent.pointerUp(screen.getByRole('button'), { clientX: 0, clientY: 0 });
-    expect(mockSelectElement).not.toHaveBeenCalled();
-  });
-
-  it('does not select when pointer moved more than 8px (drag gesture)', () => {
-    mockCtx(null);
-    render(<PolyatomicToken ion={sulfateIon} />);
-    fireEvent.pointerDown(screen.getByRole('button'), { clientX: 0, clientY: 0 });
-    fireEvent.pointerUp(screen.getByRole('button'), { clientX: 50, clientY: 50 });
-    expect(mockSelectElement).not.toHaveBeenCalled();
   });
 
   it('renders the formula text', () => {
