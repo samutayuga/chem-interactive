@@ -47,7 +47,7 @@ describe('DropZone tap-to-place', () => {
   it('dispatches DROP_ELEMENT and clears selection when tapped with selectedElement', () => {
     mockCtx(mgZone);
     render(<DropZone slot="A" />);
-    fireEvent.click(screen.getByText(/Tap to place Mg here/));
+    fireEvent.click(screen.getByText(/Tap to place Mg/));
     expect(mockDispatch).toHaveBeenCalledWith({
       type: 'DROP_ELEMENT', slot: 'A', zone: mgZone,
     });
@@ -57,7 +57,7 @@ describe('DropZone tap-to-place', () => {
   it('does not dispatch when no selectedElement', () => {
     mockCtx(null);
     render(<DropZone slot="A" />);
-    fireEvent.click(screen.getByText(/Drop element here/));
+    fireEvent.click(screen.getByText(/Drop here/));
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 

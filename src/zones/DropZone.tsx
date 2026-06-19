@@ -51,7 +51,7 @@ export function DropZone({ slot }: Props) {
       ref={setNodeRef}
       onClick={handleClick}
       className={[
-        'relative w-full rounded-xl border-2 min-h-32 transition-all duration-200',
+        'relative w-full rounded-xl border-2 min-h-16 md:min-h-32 transition-all duration-200',
         isOver
           ? `${colors.glow} shadow-lg`
           : hasPendingSelection
@@ -76,9 +76,9 @@ export function DropZone({ slot }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`flex items-center justify-center py-4 ${colors.label} text-sm`}
+            className={`flex items-center justify-center py-2 md:py-4 ${colors.label} text-[10px] md:text-sm text-center px-1`}
           >
-            {hasPendingSelection ? `Tap to place ${selectedElement.symbol} here` : 'Drop element here'}
+            {hasPendingSelection ? `Tap to place ${selectedElement.symbol}` : 'Drop here'}
           </motion.div>
         )}
 
@@ -89,7 +89,7 @@ export function DropZone({ slot }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
           >
-            <div className={`text-center py-3 text-2xl font-bold ${colors.text}`}>
+            <div className={`text-center py-2 md:py-3 text-lg md:text-2xl font-bold ${colors.text}`}>
               {zone.symbol}
             </div>
           </motion.div>
@@ -100,7 +100,7 @@ export function DropZone({ slot }: Props) {
             key="ionized"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`flex items-center justify-center py-4 text-3xl font-bold ${colors.text}`}
+            className={`flex items-center justify-center py-2 md:py-4 text-xl md:text-3xl font-bold ${colors.text}`}
           >
             {formatIon(zone.symbol, zone.derivedCharge)}
           </motion.div>
