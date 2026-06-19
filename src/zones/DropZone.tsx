@@ -24,7 +24,7 @@ const SLOT_COLORS: Record<Slot, { border: string; glow: string; label: string; t
 };
 
 export function DropZone({ slot }: Props) {
-  const { state, dispatch } = useIonicCanvas();
+  const { state, dispatch, selectedElement, clearSelection } = useIonicCanvas();
   const zone = slot === 'A' ? state.slotA : state.slotB;
   const { canvasPhase } = state;
 
@@ -37,18 +37,31 @@ export function DropZone({ slot }: Props) {
   });
 
   const colors = SLOT_COLORS[slot];
+  const hasPendingSelection = selectedElement !== null && !dropDisabled;
+
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!selectedElement || dropDisabled) return;
+    dispatch({ type: 'DROP_ELEMENT', slot, zone: selectedElement });
+    clearSelection();
+  }
 
   return (
     <div
       ref={setNodeRef}
+      onClick={handleClick}
       className={[
         'relative w-full rounded-xl border-2 min-h-32 transition-all duration-200',
-        isOver ? `${colors.glow} shadow-lg` : colors.border,
+        isOver
+          ? `${colors.glow} shadow-lg`
+          : hasPendingSelection
+            ? `${colors.glow} animate-pulse cursor-pointer`
+            : colors.border,
       ].join(' ')}
     >
       {showReplace && (
         <button
-          onClick={() => dispatch({ type: 'REPLACE_ELEMENT', slot })}
+          onClick={(e) => { e.stopPropagation(); dispatch({ type: 'REPLACE_ELEMENT', slot }); }}
           aria-label={`Replace ${slot === 'A' ? 'left' : 'right'} element`}
           className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-white/10 hover:bg-red-500/30 text-white/40 hover:text-red-400 text-xs flex items-center justify-center transition-colors"
         >
@@ -65,7 +78,7 @@ export function DropZone({ slot }: Props) {
             exit={{ opacity: 0 }}
             className={`flex items-center justify-center py-4 ${colors.label} text-sm`}
           >
-            Drop element here
+            {hasPendingSelection ? `Tap to place ${selectedElement.symbol} here` : 'Drop element here'}
           </motion.div>
         )}
 
