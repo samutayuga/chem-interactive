@@ -119,7 +119,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
           isDragging  ? 'opacity-30 scale-95' : 'opacity-100',
           isInactive  ? 'opacity-20 cursor-not-allowed pointer-events-none' : '',
           isSelected  ? 'ring-2 ring-white/80' : '',
-          !isSelected && selectedElement ? 'opacity-50' : '',
+          !isSelected && selectedElement && !isDragging ? 'opacity-50' : '',
         ].join(' ')}
         style={{
           borderColor: color + '55',
@@ -192,6 +192,7 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
           isDragging ? 'opacity-30' : 'opacity-100',
           disabled    ? 'opacity-20 cursor-not-allowed pointer-events-none' : '',
           isSelected  ? 'ring-2 ring-white/80' : '',
+          !isSelected && selectedElement ? 'opacity-50' : '',
         ].join(' ')}
       >
         <span className="text-base font-bold text-white">{ion.formula}</span>
