@@ -42,7 +42,7 @@ export function DropZone({ slot }: Props) {
     <div
       ref={setNodeRef}
       className={[
-        'relative w-72 rounded-xl border-2 min-h-16 transition-all duration-200',
+        'relative w-full rounded-xl border-2 min-h-32 transition-all duration-200',
         isOver ? `${colors.glow} shadow-lg` : colors.border,
       ].join(' ')}
     >
