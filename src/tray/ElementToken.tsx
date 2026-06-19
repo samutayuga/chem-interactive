@@ -1,6 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import Tooltip from '@mui/material/Tooltip';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { WasmElement } from '@periodic-table';
 import { parseValenceElectrons } from '../utils/valence';
 import { elementClassColor } from '../utils/elementColor';
@@ -95,18 +95,23 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   const isSelected = selectedElement?.symbol === element.symbol;
   const isInactive = disabled || bondHint === 'none';
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setTooltipOpen(true);
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
     const start = touchStart.current;
     touchStart.current = null;
+    closeTimer.current = setTimeout(() => setTooltipOpen(false), 1500);
     if (!start) return;
     const t = e.changedTouches[0];
     if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) return;
-    e.preventDefault(); // prevent ghost click on iOS
+    e.preventDefault();
     if (isInactive) return;
     if (isSelected) clearSelection();
     else selectElement(makeZoneState(element));
@@ -120,7 +125,16 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   }
 
   return (
-    <Tooltip title={<ElementTooltip element={element} />} placement="top" arrow enterDelay={300} enterTouchDelay={0} leaveTouchDelay={1500}>
+    <Tooltip
+      title={<ElementTooltip element={element} />}
+      placement="top"
+      arrow
+      open={tooltipOpen}
+      onOpen={() => setTooltipOpen(true)}
+      onClose={() => { if (closeTimer.current) clearTimeout(closeTimer.current); setTooltipOpen(false); }}
+      disableTouchListener
+      enterDelay={300}
+    >
       <div
         ref={setNodeRef}
         {...listeners}

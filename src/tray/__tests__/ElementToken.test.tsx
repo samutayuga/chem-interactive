@@ -1,6 +1,6 @@
 // src/tray/__tests__/ElementToken.test.tsx
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ElementToken, PolyatomicToken, makeZoneState } from '../ElementToken';
 import type { WasmElement } from '@periodic-table';
 
@@ -14,9 +14,20 @@ vi.mock('@dnd-kit/core', () => ({
   }),
 }));
 
-vi.mock('@mui/material/Tooltip', () => ({
-  default: ({ children, title }: any) => <>{children}{title && <div data-testid="tooltip-title">{title}</div>}</>,
-}));
+vi.mock('@mui/material/Tooltip', () => {
+  const React = require('react');
+  return {
+    default: ({ children, title, open, onOpen, onClose }: any) => (
+      <>
+        {React.cloneElement(children, {
+          onMouseEnter: (e: any) => { onOpen?.(); children.props.onMouseEnter?.(e); },
+          onMouseLeave: (e: any) => { onClose?.(); children.props.onMouseLeave?.(e); },
+        })}
+        {(open === undefined || open) && title && <div data-testid="tooltip-title">{title}</div>}
+      </>
+    ),
+  };
+});
 
 vi.mock('../../canvas/hooks', () => ({
   useIonicCanvas: vi.fn(),
@@ -205,6 +216,59 @@ describe('ElementToken tap interaction', () => {
     const { container } = render(<ElementToken element={mgEl} />);
     expect(container.firstChild).toHaveClass('opacity-30');
   });
+
+  it('tooltip opens on mouse hover (onOpen) and closes on mouse leave (onClose)', () => {
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const token = screen.getByRole('button');
+    expect(screen.queryByTestId('tooltip-title')).toBeNull();
+    fireEvent.mouseEnter(token);
+    expect(screen.getByTestId('tooltip-title')).toBeDefined();
+    fireEvent.mouseLeave(token);
+    expect(screen.queryByTestId('tooltip-title')).toBeNull();
+  });
+
+  it('tooltip opens on touchStart and closes after 1500ms', () => {
+    vi.useFakeTimers();
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    expect(screen.queryByTestId('tooltip-title')).toBeNull();
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    expect(screen.getByTestId('tooltip-title')).toBeDefined();
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    act(() => { vi.advanceTimersByTime(1500); });
+    expect(screen.queryByTestId('tooltip-title')).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it('rapid second touchStart clears existing close timer and keeps tooltip open', () => {
+    vi.useFakeTimers();
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    // fire second touchStart before timer fires — should clear timer
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    act(() => { vi.advanceTimersByTime(1500); });
+    // tooltip still open (new touchStart, no touchEnd yet)
+    expect(screen.getByTestId('tooltip-title')).toBeDefined();
+    vi.useRealTimers();
+  });
+
+  it('onClose while close timer running clears timer and hides tooltip', () => {
+    vi.useFakeTimers();
+    mockCtx(null);
+    render(<ElementToken element={mgEl} />);
+    const el = screen.getByRole('button');
+    fireEvent.touchStart(el, { touches: [{ clientX: 5, clientY: 5 }] });
+    fireEvent.touchEnd(el, { changedTouches: [{ clientX: 5, clientY: 5 }] });
+    // mouseLeave fires onClose while close timer is pending
+    fireEvent.mouseLeave(el);
+    expect(screen.queryByTestId('tooltip-title')).toBeNull();
+    vi.useRealTimers();
+  });
 });
 
 describe('makeZoneState', () => {
@@ -314,6 +378,12 @@ describe('PolyatomicToken tap interaction', () => {
     expect(container.firstChild).not.toHaveClass('ring-2');
   });
 
+  it('renders opacity-50 when another ion is selected', () => {
+    mockCtx('OH');
+    const { container } = render(<PolyatomicToken ion={sulfateIon} />);
+    expect(container.firstChild).toHaveClass('opacity-50');
+  });
+
   it('renders the formula text', () => {
     mockCtx(null);
     render(<PolyatomicToken ion={sulfateIon} />);
@@ -343,8 +413,7 @@ describe('ElementToken with Cl element (p-block, non-metal)', () => {
   it('renders electron configuration tooltip content including p-orbital spans', () => {
     mockCtx(null);
     render(<ElementToken element={clEl} />);
-    // The tooltip title renders ElectronConfigDisplay with '[Ne] 3s2 3p5'
-    // [Ne] is the noble gas core part
+    fireEvent.mouseEnter(screen.getByRole('button'));
     expect(screen.getByTestId('tooltip-title')).toBeDefined();
   });
 });
@@ -361,9 +430,9 @@ describe('ElectronConfigDisplay edge cases via ElementToken tooltip', () => {
       ...mgEl,
       electron_configuration: '[Xe] 4f14 irregular',
     };
-    // Should render without throwing; 'irregular' doesn't match orbital regex
     render(<ElementToken element={weirdEl} />);
-    expect(screen.getByText('Mg')).toBeDefined();
+    fireEvent.mouseEnter(screen.getByRole('button')); // open tooltip so content renders
+    expect(screen.getByText(/irregular/)).toBeDefined();
   });
 
   it('handles unknown orbital block letter (uses fallback #fff color)', () => {
