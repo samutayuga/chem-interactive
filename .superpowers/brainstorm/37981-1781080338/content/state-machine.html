@@ -1,0 +1,79 @@
+<h2>State Machine & Phase Logic</h2>
+<p class="subtitle">Full lifecycle from blank canvas to complete formula. Does the branching look right?</p>
+
+<div class="mockup">
+  <div class="mockup-header">Phase Diagram</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:11px;line-height:1.9;padding:10px;color:#ccc">
+
+    <div style="color:#7a8aff;font-weight:700;font-size:12px">SELECTING</div>
+    <div style="color:#555;padding-left:16px">Both zones empty. Tray fully interactive. Crossover button disabled.</div>
+    <div style="padding-left:16px;color:#888">↓ DROP_ELEMENT (either side)</div>
+
+    <div style="color:#7a8aff;font-weight:700;font-size:12px;margin-top:4px">DEDUCING_CHARGE <span style="color:#555;font-size:10px">(per zone — cation first, then anion)</span></div>
+    <div style="color:#555;padding-left:16px">Dropped zone expands inline. Other zone locked (opacity 40%, no drop).</div>
+    <div style="color:#555;padding-left:16px">Three sub-paths based on element type:</div>
+
+    <div style="padding-left:32px;margin-top:4px">
+      <div style="color:#4caf80;font-size:10px">📗 Regular (s/p block, non-transition)</div>
+      <div style="color:#555;padding-left:16px">Show lose/gain choice → count choice → validate</div>
+      <div style="color:#555;padding-left:16px">Wrong: shake + wrongCount++. At wrongCount ≥ 2: show valence hint.</div>
+      <div style="color:#555;padding-left:16px">Correct: electron animation → symbol transforms to ion → IONIZED</div>
+    </div>
+
+    <div style="padding-left:32px;margin-top:6px">
+      <div style="color:#f0a030;font-size:10px">📙 Transition metal (d-block: group 3–12)</div>
+      <div style="color:#555;padding-left:16px">Show charge picker (all valid oxidation states from WASM oxidation_states[])</div>
+      <div style="color:#555;padding-left:16px">Student picks → electron count auto-filled → confirm → IONIZED</div>
+    </div>
+
+    <div style="padding-left:32px;margin-top:6px">
+      <div style="color:#cf7090;font-size:10px">📕 Polyatomic ion</div>
+      <div style="color:#555;padding-left:16px">Show read-only charge callout (e.g. "OH⁻ carries −1 charge")</div>
+      <div style="color:#555;padding-left:16px">Student taps "Got it" → immediately IONIZED (no wrong-answer path)</div>
+    </div>
+
+    <div style="padding-left:16px;margin-top:6px;color:#888">↓ Both zones IONIZED</div>
+
+    <div style="color:#7a8aff;font-weight:700;font-size:12px;margin-top:4px">READY_TO_CROSS</div>
+    <div style="color:#555;padding-left:16px">Both ions shown. Bridge column pulses. "Cross Over →" button enabled.</div>
+    <div style="padding-left:16px;color:#888">↓ TRIGGER_CROSSOVER</div>
+
+    <div style="color:#7a8aff;font-weight:700;font-size:12px;margin-top:4px">ANIMATING_CROSSOVER</div>
+    <div style="color:#555;padding-left:16px">4-frame Framer Motion sequence (locked, no interaction):</div>
+    <div style="padding-left:32px;color:#aaa;font-size:10px">
+      <div>① Charge signs (±) fade out → bare integers remain</div>
+      <div>② Integers animate diagonally across bridge (X path)</div>
+      <div>③ If polyatomic target AND subscript &gt; 1 → brackets animate in</div>
+      <div>④ GCD check → if GCD &gt; 1: divide animation (e.g. ÷2) → simplified formula</div>
+    </div>
+    <div style="padding-left:16px;color:#888">↓ CROSSOVER_COMPLETE</div>
+
+    <div style="color:#7a8aff;font-weight:700;font-size:12px;margin-top:4px">COMPLETE</div>
+    <div style="color:#555;padding-left:16px">Final formula displayed in bridge. Reset button shown. No further interaction.</div>
+
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px">
+  <div class="mockup-header">State Schema (TypeScript)</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;line-height:1.7;padding:10px;color:#aaa">
+<pre style="margin:0;color:#aaa;white-space:pre-wrap">interface IonicCanvasState {
+  canvasPhase: 'SELECTING' | 'DEDUCING_CHARGE' | 'READY_TO_CROSS'
+            | 'ANIMATING_CROSSOVER' | 'COMPLETE';
+  activeDeductionSide: 'cation' | 'anion' | null;
+  cation: ZoneState | null;
+  anion:  ZoneState | null;
+}
+
+interface ZoneState {
+  symbol:          string;
+  isPolyatomic:    boolean;
+  isTransition:    boolean;
+  valenceElectrons: number;       // from WASM electron_configuration
+  oxidationStates: number[];      // from WASM — used for TM picker
+  derivedCharge:   number | null; // set after successful deduction
+  wrongCount:      number;        // resets on correct answer
+  status: 'NEUTRAL' | 'DEDUCING' | 'IONIZED';
+}</pre>
+  </div>
+</div>

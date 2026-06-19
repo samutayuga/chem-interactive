@@ -1,0 +1,103 @@
+<h2>Deduction Phase: How does it appear?</h2>
+<p class="subtitle">Student drops Mg into the cation zone. Now they must deduce its charge. Which interaction model?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="modal" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;position:relative;min-height:160px">
+      <!-- dimmed background -->
+      <div style="opacity:0.3;filter:blur(1px)">
+        <div style="background:#2d2d44;border-radius:3px;padding:4px;margin-bottom:6px;text-align:center;color:#aaa;font-size:9px">── ELEMENT TRAY ──</div>
+        <div style="display:flex;gap:6px;height:50px">
+          <div style="flex:1;background:#1e3a2f;border:1px dashed #3a7a5a;border-radius:3px"></div>
+          <div style="flex:0 0 40px;background:#22223a;border-radius:3px"></div>
+          <div style="flex:1;background:#3a1e2f;border:1px dashed #7a3a5a;border-radius:3px"></div>
+        </div>
+      </div>
+      <!-- modal overlay -->
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+        <div style="background:#252540;border:1px solid #4a4a6a;border-radius:8px;padding:14px;width:85%;box-shadow:0 4px 20px #000a">
+          <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:6px">🔬 Magnesium — Group 2, 2 valence electrons</div>
+          <div style="color:#aaa;font-size:10px;margin-bottom:10px">To form a stable octet, Mg must:</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <div style="flex:1;background:#1a3a1a;border:1px solid #4a7a4a;border-radius:4px;padding:5px;text-align:center;color:#4caf80;font-size:11px">Lose electrons</div>
+            <div style="flex:1;background:#1a1a3a;border:1px solid #3a3a6a;border-radius:4px;padding:5px;text-align:center;color:#666;font-size:11px">Gain electrons</div>
+          </div>
+          <div style="color:#aaa;font-size:10px;margin-bottom:6px">How many?</div>
+          <div style="display:flex;gap:4px">
+            <div style="background:#1a3a1a;border:1px solid #4a7a4a;border-radius:4px;padding:4px 10px;color:#4caf80;font-size:11px">2 ✓</div>
+            <div style="background:#2a2a3a;border-radius:4px;padding:4px 10px;color:#555;font-size:11px">1</div>
+            <div style="background:#2a2a3a;border-radius:4px;padding:4px 10px;color:#555;font-size:11px">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Modal Overlay</h3>
+      <p>Canvas dims, a focused dialog appears. Student answers lose/gain + count. Canvas resumes after correct answer.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="inline" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;min-height:160px">
+      <div style="background:#2d2d44;border-radius:3px;padding:4px;margin-bottom:6px;text-align:center;color:#aaa;font-size:9px">── ELEMENT TRAY ──</div>
+      <div style="display:flex;gap:6px">
+        <!-- cation zone expanded inline -->
+        <div style="flex:1;background:#1e3a2f;border:2px solid #4caf80;border-radius:6px;padding:8px">
+          <div style="color:#4caf80;font-size:18px;font-weight:700;text-align:center">Mg</div>
+          <div style="color:#888;font-size:9px;text-align:center;margin:3px 0">2 valence e⁻</div>
+          <div style="display:flex;gap:3px;margin-bottom:4px">
+            <div style="flex:1;background:#1a4a1a;border-radius:3px;padding:3px;text-align:center;color:#4caf80;font-size:9px">Lose ✓</div>
+            <div style="flex:1;background:#222;border-radius:3px;padding:3px;text-align:center;color:#444;font-size:9px">Gain</div>
+          </div>
+          <div style="display:flex;gap:2px">
+            <div style="flex:1;background:#1a4a1a;border-radius:2px;padding:2px;text-align:center;color:#4caf80;font-size:9px">2 ✓</div>
+            <div style="flex:1;background:#222;border-radius:2px;padding:2px;text-align:center;color:#333;font-size:9px">1</div>
+            <div style="flex:1;background:#222;border-radius:2px;padding:2px;text-align:center;color:#333;font-size:9px">3</div>
+          </div>
+        </div>
+        <!-- bridge -->
+        <div style="flex:0 0 36px;background:#22223a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#333;font-size:16px">⇌</div>
+        <!-- anion zone idle -->
+        <div style="flex:1;background:#2a1e2f;border:1px dashed #5a3a5a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#444;font-size:9px">Drop anion here</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Inline Expansion</h3>
+      <p>Drop zone itself expands to show the deduction UI in-place. No overlay. Anion zone stays visible but locked until cation deduction is done.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sidebar" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;min-height:160px">
+      <div style="background:#2d2d44;border-radius:3px;padding:4px;margin-bottom:6px;text-align:center;color:#aaa;font-size:9px">── ELEMENT TRAY ──</div>
+      <div style="display:flex;gap:6px;height:120px">
+        <!-- main canvas shrunk -->
+        <div style="flex:1;display:flex;gap:4px">
+          <div style="flex:1;background:#1e3a2f;border:1px solid #4caf80;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#4caf80;font-size:14px">Mg</div>
+          <div style="flex:0 0 20px;background:#22223a;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#333;font-size:10px">⇌</div>
+          <div style="flex:1;background:#2a1e2f;border:1px dashed #5a3a5a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#333;font-size:8px">anion</div>
+        </div>
+        <!-- slide-in side panel -->
+        <div style="flex:0 0 100px;background:#252540;border:1px solid #4a4a7a;border-radius:6px;padding:8px">
+          <div style="color:#fff;font-size:9px;font-weight:600;margin-bottom:4px">Deduce Mg</div>
+          <div style="color:#888;font-size:8px;margin-bottom:6px">Group 2 · 2 val e⁻</div>
+          <div style="display:flex;gap:2px;margin-bottom:4px">
+            <div style="flex:1;background:#1a3a1a;border-radius:2px;padding:3px;text-align:center;color:#4caf80;font-size:8px">Lose</div>
+            <div style="flex:1;background:#222;border-radius:2px;padding:3px;text-align:center;color:#444;font-size:8px">Gain</div>
+          </div>
+          <div style="display:flex;gap:2px">
+            <div style="flex:1;background:#1a3a1a;border-radius:2px;padding:2px;text-align:center;color:#4caf80;font-size:8px">2✓</div>
+            <div style="flex:1;background:#222;border-radius:2px;padding:2px;text-align:center;color:#333;font-size:8px">1</div>
+            <div style="flex:1;background:#222;border-radius:2px;padding:2px;text-align:center;color:#333;font-size:8px">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Slide-in Side Panel</h3>
+      <p>A panel slides in from the right when element is dropped. Canvas stays visible at reduced size. Panel dismisses after correct answer.</p>
+    </div>
+  </div>
+
+</div>

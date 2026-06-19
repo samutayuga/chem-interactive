@@ -32,15 +32,18 @@ export function IonicCanvas() {
           <ElementTray />
         </div>
 
-        <div className="flex h-[61.8vh] pt-[20.6vh] items-start overflow-y-auto">
-          <div className="w-1/3 px-3">
-            <DropZone slot="A" />
-          </div>
-          <div className="w-1/3 px-2">
-            <BridgeColumn />
-          </div>
-          <div className="w-1/3 px-3">
-            <DropZone slot="B" />
+        <div className="flex-1 flex flex-col">
+          <div className="h-[20.6vh] shrink-0" />
+          <div className="flex items-start overflow-y-auto">
+            <div className="w-1/3 px-3">
+              <DropZone slot="A" />
+            </div>
+            <div className="w-1/3 px-3">
+              <BridgeColumn />
+            </div>
+            <div className="w-1/3 px-3">
+              <DropZone slot="B" />
+            </div>
           </div>
         </div>
 

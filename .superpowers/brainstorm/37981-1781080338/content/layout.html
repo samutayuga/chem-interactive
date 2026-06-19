@@ -1,0 +1,70 @@
+<h2>Overall App Layout</h2>
+<p class="subtitle">How should the canvas be structured? All options have the element tray at top.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;font-family:monospace;font-size:11px;color:#ccc">
+      <div style="background:#2d2d44;border-radius:4px;padding:6px;margin-bottom:8px;text-align:center;color:#aaa;letter-spacing:1px;font-size:10px">
+        ── ELEMENT TRAY ── Mg Na Fe Cl O OH⁻ NO₃⁻ ──
+      </div>
+      <div style="display:flex;gap:8px;height:120px">
+        <div style="flex:1;background:#1e3a2f;border:1px dashed #3a7a5a;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4caf80;font-size:13px">
+          <div style="font-size:20px;margin-bottom:4px">Mg²⁺</div>
+          <div style="font-size:9px;color:#3a7a5a">CATION ZONE</div>
+        </div>
+        <div style="flex:1;background:#3a1e2f;border:1px dashed #7a3a5a;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#cf7090;font-size:13px">
+          <div style="font-size:20px;margin-bottom:4px">Cl⁻</div>
+          <div style="font-size:9px;color:#7a3a5a">ANION ZONE</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;text-align:center;background:#2a2a40;border-radius:4px;padding:5px;color:#7a8aff;font-size:10px">
+        MgCl₂ ← FORMULA OUTPUT
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Side-by-Side Split</h3>
+      <p>Cation left, anion right, formula output strip at bottom. Fixed zones. Spec default.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="centered" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;font-family:monospace;font-size:11px;color:#ccc">
+      <div style="background:#2d2d44;border-radius:4px;padding:6px;margin-bottom:8px;text-align:center;color:#aaa;letter-spacing:1px;font-size:10px">
+        ── ELEMENT TRAY ── Mg Na Fe Cl O OH⁻ NO₃⁻ ──
+      </div>
+      <div style="display:flex;gap:8px;height:120px;align-items:center">
+        <div style="flex:1;background:#1e3a2f;border:1px dashed #3a7a5a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#4caf80;font-size:18px">Mg²⁺</div>
+        <div style="flex:0 0 60px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#666">
+          <div style="font-size:18px;color:#7a8aff">⇌</div>
+          <div style="font-size:9px;color:#555;margin-top:4px">MgCl₂</div>
+        </div>
+        <div style="flex:1;background:#3a1e2f;border:1px dashed #7a3a5a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#cf7090;font-size:18px">Cl⁻</div>
+      </div>
+      <div style="margin-top:8px;text-align:center;color:#555;font-size:9px">formula appears in the middle bridge</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Bridge Layout</h3>
+      <p>Cation and anion flank a central bridge column. Formula, cross-over arrow, and GCD animation all happen in the middle.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="stacked" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;font-family:monospace;font-size:11px;color:#ccc">
+      <div style="background:#2d2d44;border-radius:4px;padding:6px;margin-bottom:8px;text-align:center;color:#aaa;letter-spacing:1px;font-size:10px">
+        ── ELEMENT TRAY ──
+      </div>
+      <div style="display:flex;gap:6px;height:55px">
+        <div style="flex:1;background:#1e3a2f;border:1px dashed #3a7a5a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#4caf80;font-size:14px">Mg²⁺</div>
+        <div style="flex:1;background:#3a1e2f;border:1px dashed #7a3a5a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#cf7090;font-size:14px">Cl⁻</div>
+      </div>
+      <div style="margin:6px 0;text-align:center;color:#7a8aff;font-size:10px">↓ cross-over ↓</div>
+      <div style="background:#2a2a40;border-radius:4px;padding:5px;text-align:center;color:#7a8aff;font-size:13px">MgCl₂</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Vertical Stack (iPad-first)</h3>
+      <p>Tray → ions row → formula below. Tall layout optimised for portrait iPad. Cross-over arrows go downward instead of diagonal.</p>
+    </div>
+  </div>
+
+</div>

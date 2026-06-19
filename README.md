@@ -38,6 +38,72 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+## Deployment (Heroku)
+
+### Requirements
+
+| Requirement | Notes |
+|-------------|-------|
+| [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) | `heroku --version` to verify |
+| Docker Desktop | Must be running before build/push |
+| Heroku account | Free tier works |
+| Heroku app created | Must exist before push — registry returns 401 otherwise |
+| App stack set to `container` | Required for Docker-based deploys |
+
+### One-time app setup
+
+Run these once per app name. Skip if the app already exists.
+
+```bash
+heroku create chem-interactive
+heroku stack:set container --app chem-interactive
+```
+
+### Build
+
+```bash
+npm ci && npm run build
+```
+
+### Build Docker image
+
+The `--provenance=false --platform linux/amd64` flags are required. Without them Docker BuildKit generates a multi-platform manifest list that Heroku's registry rejects with 401.
+
+```bash
+docker build --no-cache --provenance=false --platform linux/amd64 \
+  --tag registry.heroku.com/chem-interactive/web \
+  -f Dockerfile .
+```
+
+### Authenticate and push
+
+`heroku container:login` may include stderr output that corrupts the token when piped. Use `heroku auth:token 2>/dev/null` instead.
+
+```bash
+heroku auth:token 2>/dev/null | docker login --username=_ --password-stdin registry.heroku.com
+docker push registry.heroku.com/chem-interactive/web
+heroku container:release web --app chem-interactive
+```
+
+### Full deploy script (subsequent deploys)
+
+```bash
+npm ci && npm run build
+docker build --no-cache --provenance=false --platform linux/amd64 \
+  --tag registry.heroku.com/chem-interactive/web -f Dockerfile .
+heroku auth:token 2>/dev/null | docker login --username=_ --password-stdin registry.heroku.com
+docker push registry.heroku.com/chem-interactive/web
+heroku container:release web --app chem-interactive
+```
+
+### Common 401 causes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| 401 on `docker push` | App does not exist on Heroku | `heroku create <app-name>` first |
+| 401 on `docker push` | Manifest list format rejected | Add `--provenance=false --platform linux/amd64` to build |
+| 401 on `docker login` | stderr in token corrupts password | Use `heroku auth:token 2>/dev/null` |
+
 ## How to Use
 
 1. **Pick an element** from the tray and drag it into either drop zone.

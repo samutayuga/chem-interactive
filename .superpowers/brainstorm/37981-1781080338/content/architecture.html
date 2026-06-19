@@ -1,0 +1,60 @@
+<h2>Architecture Overview</h2>
+<p class="subtitle">Component tree and data flow. Does this structure look right?</p>
+
+<div class="mockup">
+  <div class="mockup-header">Component Tree</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:12px;line-height:1.8;color:#ccc;padding:8px">
+
+    <div style="color:#7a8aff;font-weight:700">App</div>
+    <div style="padding-left:16px">
+      <div style="color:#c0c0ff">├── <span style="color:#00e5ff">WasmProvider</span> <span style="color:#555;font-size:10px">// loads PeriodicTable.load() once, exposes via context</span></div>
+      <div style="color:#c0c0ff">└── <span style="color:#00e5ff">IonicCanvasProvider</span> <span style="color:#555;font-size:10px">// useReducer: IonicCanvasState + dispatch</span></div>
+      <div style="padding-left:32px">
+        <div style="color:#c0c0ff">└── <span style="color:#ff9f43">IonicCanvas</span> <span style="color:#555;font-size:10px">// root layout — bridge arrangement</span></div>
+        <div style="padding-left:48px">
+          <div style="color:#c0c0ff">├── <span style="color:#ffd32a">ElementTray</span> <span style="color:#555;font-size:10px">// scrollable neutral atoms + polyatomic tab</span></div>
+          <div style="padding-left:64px">
+            <div style="color:#c0c0ff">└── <span style="color:#aaa">ElementToken</span> × N <span style="color:#555;font-size:10px">// draggable chip: symbol, name, atomic number</span></div>
+          </div>
+          <div style="color:#c0c0ff">├── <span style="color:#ffd32a">DropZone</span> <span style="color:#555;font-size:10px">// side=cation|anion, reads phase from context</span></div>
+          <div style="padding-left:64px">
+            <div style="color:#c0c0ff">└── <span style="color:#aaa">DeductionPanel</span> <span style="color:#555;font-size:10px">// inline expansion — shown when zone has NEUTRAL element</span></div>
+            <div style="padding-left:16px">
+              <div style="color:#c0c0ff">├── <span style="color:#aaa">RegularDeduction</span> <span style="color:#555;font-size:10px">// lose/gain + count buttons</span></div>
+              <div style="color:#c0c0ff">├── <span style="color:#aaa">TransitionMetalPicker</span> <span style="color:#555;font-size:10px">// charge selector for d-block</span></div>
+              <div style="color:#c0c0ff">└── <span style="color:#aaa">PolyatomicConfirm</span> <span style="color:#555;font-size:10px">// read-only charge callout + Got it</span></div>
+            </div>
+          </div>
+          <div style="color:#c0c0ff">├── <span style="color:#ffd32a">BridgeColumn</span> <span style="color:#555;font-size:10px">// centre column: ⇌ icon, crossover button, formula</span></div>
+          <div style="color:#c0c0ff">└── <span style="color:#ffd32a">DropZone</span> <span style="color:#555;font-size:10px">// anion side (mirror of cation)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px">
+  <div class="mockup-header">Data Flow</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:11px;line-height:1.9;padding:8px;color:#ccc">
+    <div><span style="color:#ffd32a">ElementToken</span> drag → <span style="color:#00e5ff">DROP_ELEMENT</span> action → reducer sets zone to <span style="color:#ff9f43">NEUTRAL</span></div>
+    <div><span style="color:#aaa">DeductionPanel</span> answer → <span style="color:#00e5ff">SUBMIT_DEDUCTION</span> → reducer validates → sets zone to <span style="color:#ff9f43">IONIZED</span></div>
+    <div><span style="color:#aaa">BridgeColumn</span> button → <span style="color:#00e5ff">TRIGGER_CROSSOVER</span> → phase → <span style="color:#ff9f43">ANIMATING_CROSSOVER</span></div>
+    <div><span style="color:#aaa">CrossoverAnimator</span> completes → <span style="color:#00e5ff">CROSSOVER_COMPLETE</span> → phase → <span style="color:#ff9f43">COMPLETE</span></div>
+    <div style="margin-top:6px"><span style="color:#00e5ff">WasmProvider</span> → <span style="color:#aaa">useWasm()</span> hook → any component needing element data</div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px">
+  <div class="mockup-header">Reducer Actions</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;line-height:1.8;padding:8px;color:#aaa">
+    <div><span style="color:#7a8aff">DROP_ELEMENT</span>        { side, symbol }</div>
+    <div><span style="color:#7a8aff">SUBMIT_DEDUCTION</span>   { side, loseOrGain, count }  <span style="color:#555">// regular</span></div>
+    <div><span style="color:#7a8aff">PICK_TM_CHARGE</span>     { side, charge }             <span style="color:#555">// transition metal</span></div>
+    <div><span style="color:#7a8aff">CONFIRM_POLYATOMIC</span> { side }                     <span style="color:#555">// polyatomic "Got it"</span></div>
+    <div><span style="color:#7a8aff">WRONG_ANSWER</span>       { side }                     <span style="color:#555">// inc wrongCount → hint at 2</span></div>
+    <div><span style="color:#7a8aff">TRIGGER_CROSSOVER</span>  –</div>
+    <div><span style="color:#7a8aff">CROSSOVER_COMPLETE</span> –</div>
+    <div><span style="color:#7a8aff">RESET</span>              –</div>
+  </div>
+</div>

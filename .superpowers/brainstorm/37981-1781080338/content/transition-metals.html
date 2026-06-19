@@ -1,0 +1,75 @@
+<h2>Transition Metals — Multiple Oxidation States</h2>
+<p class="subtitle">Fe, Cu, Mn etc. have 2+ valid charges. When/how does the student pick? (e.g. Fe²⁺ vs Fe³⁺)</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="tray-pick" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;min-height:150px">
+      <div style="background:#2d2d44;border-radius:4px;padding:6px;margin-bottom:8px">
+        <div style="color:#888;font-size:9px;margin-bottom:4px;text-align:center">ELEMENT TRAY — tap Fe first</div>
+        <div style="display:flex;gap:4px;justify-content:center">
+          <div style="background:#222;border-radius:4px;padding:4px 8px;color:#aaa;font-size:10px">Na</div>
+          <div style="background:#3a2800;border:1px solid #c87a00;border-radius:4px;padding:4px 8px;color:#f0a030;font-size:10px;position:relative">
+            Fe
+            <div style="position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:#2d2d44;border:1px solid #c87a00;border-radius:3px;padding:2px 6px;display:flex;gap:4px;white-space:nowrap;z-index:10">
+              <span style="color:#f0a030;cursor:pointer;font-size:9px">Fe²⁺</span>
+              <span style="color:#555;font-size:9px">|</span>
+              <span style="color:#cf7090;cursor:pointer;font-size:9px">Fe³⁺</span>
+            </div>
+          </div>
+          <div style="background:#222;border-radius:4px;padding:4px 8px;color:#aaa;font-size:10px">Cl</div>
+          <div style="background:#222;border-radius:4px;padding:4px 8px;color:#aaa;font-size:10px">O</div>
+        </div>
+      </div>
+      <div style="color:#666;font-size:9px;text-align:center">Student picks Fe²⁺ or Fe³⁺ in tray → then drags pre-labelled ion into zone</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Pre-pick in Tray</h3>
+      <p>Tapping a transition metal pops a small charge selector. Student picks before dragging. The dragged token already shows the chosen charge.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="post-drop" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;min-height:150px">
+      <div style="background:#2d2d44;border-radius:3px;padding:4px;margin-bottom:6px;text-align:center;color:#aaa;font-size:9px">── ELEMENT TRAY ──</div>
+      <div style="display:flex;gap:6px">
+        <!-- cation zone expanded with TM picker -->
+        <div style="flex:1;background:#2a1e00;border:2px solid #c87a00;border-radius:6px;padding:8px">
+          <div style="color:#f0a030;font-size:18px;font-weight:700;text-align:center">Fe</div>
+          <div style="color:#c87a00;font-size:8px;text-align:center;margin:2px 0">Transition metal — pick charge:</div>
+          <div style="display:flex;gap:3px;margin-top:4px">
+            <div style="flex:1;background:#1a3a1a;border:1px solid #4caf80;border-radius:3px;padding:3px;text-align:center;color:#4caf80;font-size:9px">Fe²⁺</div>
+            <div style="flex:1;background:#3a1e1e;border:1px solid #cf7090;border-radius:3px;padding:3px;text-align:center;color:#cf7090;font-size:9px">Fe³⁺</div>
+          </div>
+          <div style="color:#555;font-size:8px;text-align:center;margin-top:4px">loses 2e⁻ / loses 3e⁻</div>
+        </div>
+        <div style="flex:0 0 36px;background:#22223a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#333;font-size:16px">⇌</div>
+        <div style="flex:1;background:#2a1e2f;border:1px dashed #5a3a5a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#444;font-size:9px">Drop anion</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Post-drop Charge Picker</h3>
+      <p>Student drops Fe neutral. Inline expansion shows "transition metal — pick charge" step first, then continues with normal deduction flow showing electrons lost.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dual-tokens" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:10px;font-family:sans-serif;font-size:11px;min-height:150px">
+      <div style="background:#2d2d44;border-radius:4px;padding:6px;margin-bottom:8px">
+        <div style="color:#888;font-size:9px;margin-bottom:4px;text-align:center">ELEMENT TRAY — Fe listed twice</div>
+        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap">
+          <div style="background:#222;border-radius:4px;padding:4px 7px;color:#aaa;font-size:10px">Na</div>
+          <div style="background:#1a3a1a;border:1px solid #4caf80;border-radius:4px;padding:4px 7px;color:#4caf80;font-size:10px">Fe(II)</div>
+          <div style="background:#3a1e1e;border:1px solid #cf7090;border-radius:4px;padding:4px 7px;color:#cf7090;font-size:10px">Fe(III)</div>
+          <div style="background:#222;border-radius:4px;padding:4px 7px;color:#aaa;font-size:10px">Cl</div>
+        </div>
+      </div>
+      <div style="color:#666;font-size:9px;text-align:center">Fe(II) and Fe(III) are distinct draggable tokens in the tray — no mid-flow decision at all</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Separate Tray Tokens</h3>
+      <p>Transition metals appear as two pre-labelled tokens (e.g. Fe(II) / Fe(III)). Dragging either starts the normal deduction flow for that specific charge — no extra picker step.</p>
+    </div>
+  </div>
+
+</div>

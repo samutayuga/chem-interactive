@@ -1,0 +1,108 @@
+<h2>Cross-Over Animation Pipeline</h2>
+<p class="subtitle">4 sequential Framer Motion frames. Each frame completes before the next fires via onAnimationComplete.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Frame ① — Isolate Valency (200ms)</div>
+  <div class="mockup-body" style="font-family:monospace;padding:10px;color:#ccc;font-size:11px">
+    <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:8px">
+      <div style="text-align:center">
+        <div style="font-size:24px;color:#00ff88">Mg<span style="position:relative"><sup style="color:#ff4080;font-size:14px">2+</sup></span></div>
+        <div style="color:#555;font-size:9px">before</div>
+      </div>
+      <div style="color:#555;font-size:18px">→</div>
+      <div style="text-align:center">
+        <div style="font-size:24px;color:#00ff88">Mg<span style="position:relative"><sup style="color:#fff;font-size:14px">2</sup></span></div>
+        <div style="color:#555;font-size:9px">after</div>
+      </div>
+    </div>
+    <div style="color:#888;font-size:10px">± signs fade to opacity:0. Bare integer remains, repositioned as plain superscript. Same for anion.</div>
+    <div style="color:#555;font-size:10px;margin-top:4px">Framer: <span style="color:#7a8aff">animate={{ opacity: 0 }}</span> on ± span. Integer re-renders without ± wrapper.</div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:12px">
+  <div class="mockup-header">Frame ② — Criss-Cross Travel (600ms)</div>
+  <div class="mockup-body" style="font-family:monospace;padding:10px;color:#ccc;font-size:11px">
+    <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:8px;position:relative;height:60px">
+      <div style="font-size:20px;color:#00ff88;align-self:flex-start;margin-top:4px">Mg<sup style="color:#fff;font-size:12px">2</sup></div>
+      <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center">
+        <!-- X crossing arrows -->
+        <svg width="80" height="50" viewBox="0 0 80 50">
+          <defs>
+            <marker id="a1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#00ff88"/>
+            </marker>
+            <marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#ff4080"/>
+            </marker>
+          </defs>
+          <!-- cation valency (2) travels top-left → bottom-right -->
+          <path d="M10,8 Q40,25 70,42" fill="none" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#a1)"/>
+          <!-- anion valency (1) travels top-right → bottom-left -->
+          <path d="M70,8 Q40,25 10,42" fill="none" stroke="#ff4080" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#a2)"/>
+          <text x="12" y="7" fill="#00ff88" font-size="10" font-family="monospace">2</text>
+          <text x="64" y="7" fill="#ff4080" font-size="10" font-family="monospace">1</text>
+          <text x="5" y="50" fill="#ff4080" font-size="9" font-family="monospace">_1</text>
+          <text x="60" y="50" fill="#00ff88" font-size="9" font-family="monospace">_2</text>
+        </svg>
+      </div>
+      <div style="font-size:20px;color:#ff4080;align-self:flex-start;margin-top:4px">Cl<sup style="color:#fff;font-size:12px">1</sup></div>
+    </div>
+    <div style="color:#888;font-size:10px">Each integer is a <span style="color:#7a8aff">motion.span</span> with layoutId. Animates via x/y offsets across the bridge. Uses <span style="color:#7a8aff">transition: { type:'spring', stiffness:120 }</span>.</div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:12px">
+  <div class="mockup-header">Frame ③ — Polyatomic Bracket Check (300ms, conditional)</div>
+  <div class="mockup-body" style="font-family:monospace;padding:10px;color:#ccc;font-size:11px">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:8px">
+      <div style="font-size:20px;color:#00ff88">Mg</div>
+      <div style="font-size:20px;color:#555">⇌</div>
+      <div style="font-size:20px;color:#ff4080">
+        <span style="color:#ff4080;font-size:22px">(</span>OH<span style="color:#ff4080;font-size:22px">)</span><sub style="color:#fff;font-size:13px">2</sub>
+      </div>
+    </div>
+    <div style="color:#888;font-size:10px">Only fires if: target is polyatomic AND incoming subscript &gt; 1.</div>
+    <div style="color:#555;font-size:10px;margin-top:4px">Brackets rendered as two <span style="color:#7a8aff">motion.span</span>s that drop from <span style="color:#7a8aff">y:-20, opacity:0</span> → resting position.</div>
+    <div style="color:#555;font-size:10px">Skip entirely if subscript === 1 (e.g. NaOH — no brackets needed).</div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:12px">
+  <div class="mockup-header">Frame ④ — GCD Simplification (400ms, conditional)</div>
+  <div class="mockup-body" style="font-family:monospace;padding:10px;color:#ccc;font-size:11px">
+    <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px">
+      <div style="text-align:center">
+        <div style="font-size:18px;color:#c0c0ff">Ca<sub style="color:#fff;font-size:12px">2</sub>O<sub style="color:#fff;font-size:12px">2</sub></div>
+        <div style="color:#555;font-size:9px">raw</div>
+      </div>
+      <div style="text-align:center;color:#ffd32a;font-size:12px">÷ 2</div>
+      <div style="text-align:center">
+        <div style="font-size:18px;color:#00ff88">CaO</div>
+        <div style="color:#555;font-size:9px">simplified</div>
+      </div>
+    </div>
+    <div style="color:#888;font-size:10px">GCD(cation_subscript, anion_subscript) computed in JS. If GCD &gt; 1:</div>
+    <div style="color:#555;font-size:10px;margin-top:4px">1. Show "÷ N" badge fading in above formula (500ms)</div>
+    <div style="color:#555;font-size:10px">2. Subscript values animate to simplified numbers (or disappear if === 1)</div>
+    <div style="color:#555;font-size:10px">3. ÷ badge fades out</div>
+    <div style="color:#555;font-size:10px;margin-top:4px">Skip entirely if GCD === 1 (e.g. MgCl₂ — no simplification needed).</div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:12px">
+  <div class="mockup-header">Sequencing Implementation</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;line-height:1.7;padding:10px;color:#aaa">
+<pre style="margin:0;color:#aaa;white-space:pre-wrap">// Driven by animationStep: 0 | 1 | 2 | 3 | 4
+// Each Framer motion.div's onAnimationComplete advances step
+// Step 4 → dispatch(CROSSOVER_COMPLETE)
+
+const STEPS = [
+  'ISOLATE_VALENCY',     // 0 → 1
+  'CRISS_CROSS',         // 1 → 2
+  'BRACKET_CHECK',       // 2 → 3  (skipped if not polyatomic or sub===1)
+  'GCD_SIMPLIFY',        // 3 → 4  (skipped if GCD===1)
+  'DONE',                // 4
+];</pre>
+  </div>
+</div>
