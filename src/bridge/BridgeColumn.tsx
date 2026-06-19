@@ -57,7 +57,7 @@ export function BridgeColumn() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 px-2 min-w-52">
+    <div className="w-full flex flex-col items-center justify-start gap-4">
       <span className="text-2xl text-accent/60">⇌</span>
 
       {canvasPhase === 'EXPLAINING' && <ExplanationModal />}
