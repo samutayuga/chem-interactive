@@ -52,6 +52,36 @@ The solution uses `onTouchStart` + `onTouchEnd` instead, which dnd-kit does **no
 
 This means drag-and-drop and tap-to-select coexist without any sensor reconfiguration.
 
+## Responsive Design
+
+The layout is mobile-first: base Tailwind classes target small screens, and the `md:` breakpoint (≥768px) progressively enhances for desktop. A single codebase serves phone, tablet, and desktop without separate views.
+
+### Breakpoint strategy
+
+| Concern | Mobile (base) | Desktop (`md:`) |
+|---------|---------------|-----------------|
+| Element token size | `w-8 h-8` (32px) | `md:w-14 md:h-14` (56px) |
+| Symbol text | `text-[10px]` | `md:text-sm` |
+| Mass / atomic number labels | `text-[6px]` | `md:text-[7px]`, hover `md:text-[9px]` |
+| Tray height | `h-[45vh]` | `md:h-[58vh]` (full table visible, no scroll) |
+| Tray padding | `p-1` | `md:p-3` |
+| Period row labels (1–7) | `hidden` | `md:flex` (shown only on desktop) |
+| Group column borders / cells | `border-0 p-0` | `md:border md:rounded-xl md:p-1` |
+| Column gutters | `px-1` | `md:px-3` |
+| Drop zone min-height | `min-h-16` | `md:min-h-32` |
+| Drop zone text | `text-[10px]` | `md:text-sm` |
+| Explanation modal padding / text | `p-4`, `text-xs` | `md:p-6`, `md:text-sm` |
+
+### Techniques used
+
+- **Mobile-first defaults** — unprefixed classes are the phone layout; `md:` overrides add desktop richness. Nothing is desktop-only by default.
+- **Viewport-relative heights** — tray uses `vh` units so it scales to screen height; full periodic table fits without scrolling on desktop, scrolls gracefully on short screens.
+- **Progressive disclosure** — period labels and group-column chrome (`hidden md:flex`, `border-0 md:border`) appear only where there's room, reducing clutter on phones.
+- **Fluid centering with max-width** — workspace columns use `w-1/3` inside a `max-w-5xl` centered container, so they fill small screens but cap on large monitors instead of stretching edge-to-edge.
+- **Flex-wrap fallbacks** — polyatomic-ion tray and transition-metal picker use `flex-wrap` to reflow tokens onto multiple rows on narrow screens.
+- **Touch + mouse parity** — `onTouchStart`/`onTouchEnd` tap-to-select complements drag-and-drop, so the same UI works with finger or cursor (see [Interaction model](#interaction-model-drag-and-drop-vs-tap-to-select)).
+- **Scroll containment** — `overflow-auto` with `min-h-0` on flex children lets the tray scroll internally without breaking the page layout.
+
 ## Getting Started
 
 ```bash

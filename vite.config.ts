@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       '@periodic-table': path.resolve(
         __dirname,
-        '../sam-periodic-table/pkg/pt-wasm/pt_wasm.js'
+        'src/wasm/pkg/pt_wasm.js'
       ),
       'react-transition-group/TransitionGroupContext': path.resolve(
         __dirname,
