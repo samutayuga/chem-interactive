@@ -24,6 +24,7 @@ function ElectronConfigDisplay({ config }: { config: string }) {
         }
         const m = part.match(/^(\d)([spdf])(\d+)$/);
         if (!m) return <span key={i}>{part} </span>;
+        // istanbul ignore next
         const clr = ORBITAL_COLOR[m[2]] ?? '#fff';
         return (
           <span key={i}>

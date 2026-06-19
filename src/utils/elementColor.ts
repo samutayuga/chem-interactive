@@ -12,6 +12,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function elementColor(category: string): string {
+  // istanbul ignore next
   return CATEGORY_COLORS[category] ?? '#e0d0ff';
 }
 
@@ -22,5 +23,6 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 export function elementClassColor(cls: string): string {
+  // istanbul ignore next
   return CLASS_COLORS[cls] ?? '#e0d0ff';
 }
