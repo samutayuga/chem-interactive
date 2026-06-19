@@ -43,7 +43,10 @@ function ElectronConfigDisplay({ config }: { config: string }) {
 function ElementTooltip({ element }: { element: WasmElement }) {
   return (
     <div style={{ padding: '2px 0' }}>
-      <div style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 4 }}>{element.name}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+        <span style={{ fontWeight: 'bold', fontSize: 13 }}>{element.name}</span>
+        <span style={{ fontSize: 11, opacity: 0.7 }}>#{element.atomic_number} · {element.mass_number}</span>
+      </div>
       <ElectronConfigDisplay config={element.electron_configuration} />
     </div>
   );
@@ -145,18 +148,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         onMouseEnter={e => { if (!isInactive) (e.currentTarget as HTMLDivElement).style.borderColor = color; }}
         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = color + '55'; }}
       >
-        {/* floating bubble above token — mobile only, appears on touch press */}
-        {isSm && (
-          <div className="md:hidden absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 pointer-events-none
-                          opacity-0 group-active:opacity-100 transition-opacity duration-100
-                          bg-surface/95 border border-white/20 rounded px-1.5 py-0.5 whitespace-nowrap
-                          flex flex-col items-center gap-0.5">
-            <span className="text-[9px] text-white/70">{element.mass_number}</span>
-            <span className="text-[11px] font-bold" style={{ color }}>{element.symbol}</span>
-            <span className="text-[9px] text-white/70">{element.atomic_number}</span>
-          </div>
-        )}
-        <div className="flex items-center justify-center">
+<div className="flex items-center justify-center">
           <div className="flex flex-col items-end leading-none mr-0.5">
             <span className={`${isSm ? 'text-[6px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.mass_number}</span>
             <span className={`${isSm ? 'text-[6px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.atomic_number}</span>
