@@ -21,17 +21,17 @@ This will produce the bundle that contains, directory containing highly optimize
 
 From the project root directory, run the following command,
 
-```sh
-docker build --no-cache --tag registry.heroku.com/chem-interactive/web -f Dockerfile .
-```
-
-2. Push the Docker image to Heroku:
+> **Heroku registry requirement:** Heroku container registry rejects OCI manifest lists (multi-platform manifests).
+> Use `--provenance=false` to produce a single-manifest image. Combine with `--push` to build and push in one step.
 
 ```sh
-docker push registry.heroku.com/chem-interactive/web
+docker buildx build --platform linux/amd64 --push --provenance=false \
+  --tag registry.heroku.com/chem-interactive/web -f Dockerfile .
 ```
 
-3. Deploy the image to Heroku:
+This single command builds **and** pushes the image.
+
+2. Deploy the image to Heroku:
 
 ```sh
 heroku container:release web --app chem-interactive

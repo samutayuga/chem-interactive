@@ -65,23 +65,14 @@ heroku stack:set container --app chem-interactive
 npm ci && npm run build
 ```
 
-### Build Docker image
+### Build and push Docker image
 
-The `--provenance=false --platform linux/amd64` flags are required. Without them Docker BuildKit generates a multi-platform manifest list that Heroku's registry rejects with 401.
-
-```bash
-docker build --no-cache --provenance=false --platform linux/amd64 \
-  --tag registry.heroku.com/chem-interactive/web \
-  -f Dockerfile .
-```
-
-### Authenticate and push
-
-`heroku container:login` may include stderr output that corrupts the token when piped. Use `heroku auth:token 2>/dev/null` instead.
+Heroku's container registry requires a **single-platform manifest** — it rejects OCI manifest lists with `unsupported`. Use `docker buildx build` with `--provenance=false` and `--push` to build and push in one step:
 
 ```bash
-heroku auth:token 2>/dev/null | docker login --username=_ --password-stdin registry.heroku.com
-docker push registry.heroku.com/chem-interactive/web
+heroku container:login
+docker buildx build --platform linux/amd64 --push --provenance=false \
+  --tag registry.heroku.com/chem-interactive/web -f Dockerfile .
 heroku container:release web --app chem-interactive
 ```
 
@@ -89,20 +80,19 @@ heroku container:release web --app chem-interactive
 
 ```bash
 npm ci && npm run build
-docker build --no-cache --provenance=false --platform linux/amd64 \
+heroku container:login
+docker buildx build --platform linux/amd64 --push --provenance=false \
   --tag registry.heroku.com/chem-interactive/web -f Dockerfile .
-heroku auth:token 2>/dev/null | docker login --username=_ --password-stdin registry.heroku.com
-docker push registry.heroku.com/chem-interactive/web
 heroku container:release web --app chem-interactive
 ```
 
-### Common 401 causes
+### Common errors
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| 401 on `docker push` | App does not exist on Heroku | `heroku create <app-name>` first |
-| 401 on `docker push` | Manifest list format rejected | Add `--provenance=false --platform linux/amd64` to build |
-| 401 on `docker login` | stderr in token corrupts password | Use `heroku auth:token 2>/dev/null` |
+| `unsupported` on push | BuildKit produced OCI manifest list | Add `--provenance=false` to `docker buildx build` |
+| `unsupported` on push | App does not exist on Heroku | `heroku create <app-name>` first |
+| Auth error on push | Not logged in to registry | Run `heroku container:login` first |
 
 ## How to Use
 
