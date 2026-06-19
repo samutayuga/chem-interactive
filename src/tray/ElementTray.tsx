@@ -10,7 +10,7 @@ import type { ElementClass } from '../canvas/types';
 
 const N_PERIODS = 7;
 const GROUP_COLUMNS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18] as const;
-const PERIOD_ROWS = `repeat(${N_PERIODS}, 3.5rem)`;
+const PERIOD_ROWS = `repeat(${N_PERIODS}, auto)`;
 
 function formatCategory(cat: string): string {
   return cat.replace(/([A-Z])/g, ' $1').trim();
@@ -95,7 +95,7 @@ export function ElementTray() {
             {/* Main table */}
             <div className="flex items-start">
               {/* Period labels */}
-              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '2px' }} className="mr-0 md:mr-1 hidden md:grid">
+              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '2px', alignItems: 'center' }} className="mr-0 md:mr-1 hidden md:grid">
                 {Array.from({ length: N_PERIODS }, (_, i) => i + 1).map(p => (
                   <Tooltip key={p} title={`Period ${p}`} placement="left" arrow enterDelay={200}>
                     <div
@@ -138,7 +138,7 @@ export function ElementTray() {
                           key={`row-${p}`}
                           style={{ gridColumn: 1, gridRow: p }}
                           className={[
-                            'rounded-lg transition-colors duration-150 pointer-events-none',
+                            'min-h-8 md:min-h-14 rounded-lg transition-colors duration-150 pointer-events-none',
                             hoveredPeriod === p ? 'bg-white/8' : '',
                           ].join(' ')}
                         />
