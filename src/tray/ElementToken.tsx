@@ -126,7 +126,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         onTouchEnd={handleTouchEnd}
         onClick={handleClick}
         className={[
-          'group flex flex-col items-center justify-center',
+          'group relative flex flex-col items-center justify-center',
           // responsive sizing: xs on mobile, sm on md+
           isSm
             ? 'w-8 h-8 md:w-14 md:h-14 rounded-md border cursor-grab select-none'
@@ -145,12 +145,23 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         onMouseEnter={e => { if (!isInactive) (e.currentTarget as HTMLDivElement).style.borderColor = color; }}
         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = color + '55'; }}
       >
+        {/* floating bubble above token — mobile only, appears on touch press */}
+        {isSm && (
+          <div className="md:hidden absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 pointer-events-none
+                          opacity-0 group-active:opacity-100 transition-opacity duration-100
+                          bg-surface/95 border border-white/20 rounded px-1.5 py-0.5 whitespace-nowrap
+                          flex flex-col items-center gap-0.5">
+            <span className="text-[9px] text-white/70">{element.mass_number}</span>
+            <span className="text-[11px] font-bold" style={{ color }}>{element.symbol}</span>
+            <span className="text-[9px] text-white/70">{element.atomic_number}</span>
+          </div>
+        )}
         <div className="flex items-center justify-center">
           <div className="flex flex-col items-end leading-none mr-0.5">
-            <span className={`${isSm ? 'text-[5px] group-active:text-[8px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/50 group-hover:text-white group-active:text-white transition-all duration-150`}>{element.mass_number}</span>
-            <span className={`${isSm ? 'text-[5px] group-active:text-[8px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/50 group-hover:text-white group-active:text-white transition-all duration-150`}>{element.atomic_number}</span>
+            <span className={`${isSm ? 'hidden md:block text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.mass_number}</span>
+            <span className={`${isSm ? 'hidden md:block text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.atomic_number}</span>
           </div>
-          <span className={`${isSm ? 'text-[10px] group-active:text-xs md:text-sm' : 'text-xl'} font-bold leading-none transition-all duration-150`} style={{ color }}>{element.symbol}</span>
+          <span className={`${isSm ? 'text-[10px] md:text-sm' : 'text-xl'} font-bold leading-none transition-all duration-150`} style={{ color }}>{element.symbol}</span>
         </div>
       </div>
     </Tooltip>
