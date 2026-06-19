@@ -1,5 +1,5 @@
 // src/tray/__tests__/ElementToken.test.tsx
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ElementToken, PolyatomicToken, makeZoneState } from '../ElementToken';
 import type { WasmElement } from '@periodic-table';
@@ -14,12 +14,12 @@ vi.mock('@dnd-kit/core', () => ({
   }),
 }));
 
-vi.mock('@mui/material/Tooltip', () => {
-  const React = require('react');
+vi.mock('@mui/material/Tooltip', async () => {
+  const { cloneElement } = await import('react');
   return {
     default: ({ children, title, open, onOpen, onClose }: any) => (
       <>
-        {React.cloneElement(children, {
+        {cloneElement(children, {
           onMouseEnter: (e: any) => { onOpen?.(); children.props.onMouseEnter?.(e); },
           onMouseLeave: (e: any) => { onClose?.(); children.props.onMouseLeave?.(e); },
         })}
