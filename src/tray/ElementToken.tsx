@@ -117,7 +117,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   }
 
   return (
-    <Tooltip title={<ElementTooltip element={element} />} placement="bottom" arrow enterDelay={300}>
+    <Tooltip title={<ElementTooltip element={element} />} placement="top" arrow enterDelay={300} enterTouchDelay={0} leaveTouchDelay={1500}>
       <div
         ref={setNodeRef}
         {...listeners}
