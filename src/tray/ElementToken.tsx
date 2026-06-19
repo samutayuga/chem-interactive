@@ -158,8 +158,8 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         )}
         <div className="flex items-center justify-center">
           <div className="flex flex-col items-end leading-none mr-0.5">
-            <span className={`${isSm ? 'hidden md:block text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.mass_number}</span>
-            <span className={`${isSm ? 'hidden md:block text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.atomic_number}</span>
+            <span className={`${isSm ? 'text-[6px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.mass_number}</span>
+            <span className={`${isSm ? 'text-[6px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.atomic_number}</span>
           </div>
           <span className={`${isSm ? 'text-[10px] md:text-sm' : 'text-xl'} font-bold leading-none transition-all duration-150`} style={{ color }}>{element.symbol}</span>
         </div>
