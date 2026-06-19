@@ -132,7 +132,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
             ? 'w-8 h-8 md:w-14 md:h-14 rounded-md border cursor-grab select-none'
             : 'w-16 h-16 rounded-lg border cursor-grab select-none',
           'bg-surface transition-all duration-150',
-          'hover:scale-110 hover:z-10',
+          'hover:scale-110 hover:z-10 active:scale-125 active:z-20',
           isDragging  ? 'opacity-30 scale-95' : 'opacity-100',
           isInactive  ? 'opacity-20 cursor-not-allowed pointer-events-none' : '',
           isSelected  ? 'ring-2 ring-white/80' : '',
@@ -147,10 +147,10 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
       >
         <div className="flex items-center justify-center">
           <div className="flex flex-col items-end leading-none mr-0.5">
-            <span className={`${isSm ? 'hidden md:block text-[7px] group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.mass_number}</span>
-            <span className={`${isSm ? 'hidden md:block text-[7px] group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/65 group-hover:text-white transition-all duration-150`}>{element.atomic_number}</span>
+            <span className={`${isSm ? 'text-[5px] group-active:text-[8px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/50 group-hover:text-white group-active:text-white transition-all duration-150`}>{element.mass_number}</span>
+            <span className={`${isSm ? 'text-[5px] group-active:text-[8px] md:text-[7px] md:group-hover:text-[9px]' : 'text-[9px] group-hover:text-[11px]'} text-white/50 group-hover:text-white group-active:text-white transition-all duration-150`}>{element.atomic_number}</span>
           </div>
-          <span className={`${isSm ? 'text-[10px] md:text-sm' : 'text-xl'} font-bold leading-none transition-all duration-150`} style={{ color }}>{element.symbol}</span>
+          <span className={`${isSm ? 'text-[10px] group-active:text-xs md:text-sm' : 'text-xl'} font-bold leading-none transition-all duration-150`} style={{ color }}>{element.symbol}</span>
         </div>
       </div>
     </Tooltip>
