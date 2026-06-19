@@ -18,16 +18,39 @@ An interactive chemistry tool for Singapore O-Level students. Drag elements onto
 
 ## Tech Stack
 
-| Layer | Library |
+| Layer | Library / Feature |
 |-------|---------|
 | Framework | React 19 + TypeScript |
 | Build | Vite 6 |
 | Styling | Tailwind CSS v4 |
 | UI primitives | Material UI v6 |
 | Animation | Framer Motion v12 |
-| Drag-and-drop | dnd-kit |
+| Drag-and-drop | dnd-kit (`PointerSensor`) |
+| Touch tap-to-select | React `onTouchEnd` + `onTouchStart` (see below) |
 | Element data | WebAssembly (Rust periodic table) |
 | State | `useReducer` + Context |
+
+### Interaction model: drag-and-drop vs tap-to-select
+
+**Desktop (mouse):** dnd-kit handles drag using pointer events. A regular `onClick` handler on each token calls `stopPropagation()` (to prevent a document-level click listener from immediately deselecting) and then toggles selection state.
+
+**Mobile (touch):** dnd-kit's `PointerSensor` registers its own `onPointerDown` handler via `{...listeners}`. Attaching another React `onPointerDown` after the spread would overwrite dnd-kit's handler and break drag. Additionally, dnd-kit calls `event.preventDefault()` on `pointerdown` for touch events, which suppresses the synthetic `click` event on iOS — so `onClick` never fires on mobile.
+
+The solution uses `onTouchStart` + `onTouchEnd` instead, which dnd-kit does **not** touch:
+
+```tsx
+// onTouchStart records finger position
+// onTouchEnd checks movement < 8px → tap → select; calls e.preventDefault() to suppress ghost click
+// onClick handles desktop mouse clicks; calls e.stopPropagation() to block document deselect listener
+<div
+  {...listeners}    // dnd-kit's onPointerDown (untouched)
+  onTouchStart={handleTouchStart}
+  onTouchEnd={handleTouchEnd}
+  onClick={handleClick}
+/>
+```
+
+This means drag-and-drop and tap-to-select coexist without any sensor reconfiguration.
 
 ## Getting Started
 
