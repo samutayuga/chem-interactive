@@ -59,7 +59,7 @@ export function ElementTray() {
   const actinides   = all.filter(e => isActinide(e.atomic_number)).sort((a, b) => a.atomic_number - b.atomic_number);
 
   return (
-    <div className="w-full h-full flex flex-col bg-surface/50 border-b border-muted/30 p-3">
+    <div className="w-full h-full flex flex-col bg-surface/50 border-b border-muted/30 p-1 md:p-3">
       <div className="flex gap-2 mb-2 shrink-0">
         <button
           onClick={() => setTab('elements')}
@@ -121,10 +121,10 @@ export function ElementTray() {
                 return (
                   <Tooltip key={group} title={<><strong>Group {group}</strong> — {category}</>} placement="top" arrow enterDelay={200}>
                     <div
-                      className="border border-transparent rounded-xl p-1 hover:border-white/25 transition-all duration-200 cursor-default"
+                      className="border-0 md:border md:border-transparent md:rounded-xl p-0 md:p-1 hover:md:border-white/25 transition-all duration-200 cursor-default"
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '3.5rem',
+                        gridTemplateColumns: 'auto',
                         gridTemplateRows: PERIOD_ROWS,
                         gap: '2px',
                         backgroundColor: color + (isHovered ? '28' : '12'),
@@ -173,7 +173,7 @@ export function ElementTray() {
                 {lanthanides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">6f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, 3.5rem)`, gap: '2px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, auto)`, gap: '2px' }}>
                       {lanthanides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
@@ -191,7 +191,7 @@ export function ElementTray() {
                 {actinides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">7f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, 3.5rem)`, gap: '2px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, auto)`, gap: '2px' }}>
                       {actinides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)

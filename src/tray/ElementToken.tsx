@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import Tooltip from '@mui/material/Tooltip';
+import { useRef } from 'react';
 import type { WasmElement } from '@periodic-table';
 import { parseValenceElectrons } from '../utils/valence';
 import { elementClassColor } from '../utils/elementColor';
@@ -90,15 +91,21 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   const bgColor = bondHint && bondHint !== 'none' ? HINT_BG[bondHint] : undefined;
   const isSelected = selectedElement?.symbol === element.symbol;
   const isInactive = disabled || bondHint === 'none';
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
-  function handleClick(e: React.MouseEvent) {
+  function handlePointerDown(e: React.PointerEvent) {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  }
+
+  function handlePointerUp(e: React.PointerEvent) {
+    const start = pointerDownPos.current;
+    pointerDownPos.current = null;
+    if (!start) return;
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) return;
     e.stopPropagation();
     if (isInactive) return;
-    if (isSelected) {
-      clearSelection();
-    } else {
-      selectElement(makeZoneState(element));
-    }
+    if (isSelected) clearSelection();
+    else selectElement(makeZoneState(element));
   }
 
   return (
@@ -107,7 +114,8 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         className={[
           'group flex flex-col items-center justify-center',
           // responsive sizing: xs on mobile, sm on md+
@@ -166,15 +174,21 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
   });
 
   const isSelected = selectedElement?.symbol === ion.symbol;
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
-  function handleClick(e: React.MouseEvent) {
+  function handlePointerDown(e: React.PointerEvent) {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  }
+
+  function handlePointerUp(e: React.PointerEvent) {
+    const start = pointerDownPos.current;
+    pointerDownPos.current = null;
+    if (!start) return;
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) return;
     e.stopPropagation();
     if (disabled) return;
-    if (isSelected) {
-      clearSelection();
-    } else {
-      selectElement(zoneState);
-    }
+    if (isSelected) clearSelection();
+    else selectElement(zoneState);
   }
 
   return (
@@ -183,7 +197,8 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         className={[
           'flex flex-col items-center justify-center',
           'px-3 h-16 rounded-lg border cursor-grab select-none',
