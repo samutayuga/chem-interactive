@@ -88,19 +88,19 @@ export function ElementTray() {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className="flex-1 overflow-auto min-h-0 flex justify-center">
         {tab === 'elements' && (
           <div className="flex flex-col gap-2 w-fit">
 
             {/* Main table */}
             <div className="flex items-start">
               {/* Period labels */}
-              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '2px' }} className="mr-1">
+              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '2px' }} className="mr-0 md:mr-1 hidden md:grid">
                 {Array.from({ length: N_PERIODS }, (_, i) => i + 1).map(p => (
                   <Tooltip key={p} title={`Period ${p}`} placement="left" arrow enterDelay={200}>
                     <div
                       className={[
-                        'flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4',
+                        'hidden md:flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4',
                         hoveredPeriod === p ? 'text-white/80' : 'text-white/30',
                       ].join(' ')}
                     >

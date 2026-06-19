@@ -28,21 +28,23 @@ export function IonicCanvas() {
     <DndContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen">
 
-        <div style={{ height: '38.2vh' }} className="shrink-0">
+        <div className="shrink-0 h-[45vh] md:h-[38.2vh]">
           <ElementTray />
         </div>
 
         <div className="flex-1 flex flex-col">
           <div className="h-[20.6vh] shrink-0" />
-          <div className="flex items-start overflow-y-auto">
-            <div className="w-1/3 px-3">
-              <DropZone slot="A" />
-            </div>
-            <div className="w-1/3 px-3">
-              <BridgeColumn />
-            </div>
-            <div className="w-1/3 px-3">
-              <DropZone slot="B" />
+          <div className="flex items-start overflow-y-auto justify-center">
+            <div className="flex flex-col md:flex-row w-full max-w-5xl">
+              <div className="w-full md:w-1/3 px-3 mb-2 md:mb-0">
+                <DropZone slot="A" />
+              </div>
+              <div className="w-full md:w-1/3 px-3 order-last md:order-none">
+                <BridgeColumn />
+              </div>
+              <div className="w-full md:w-1/3 px-3 mb-2 md:mb-0">
+                <DropZone slot="B" />
+              </div>
             </div>
           </div>
         </div>
