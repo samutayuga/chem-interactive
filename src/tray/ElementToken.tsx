@@ -43,9 +43,12 @@ function ElectronConfigDisplay({ config }: { config: string }) {
 function ElementTooltip({ element }: { element: WasmElement }) {
   return (
     <div style={{ padding: '2px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.2 }}>
+          <span style={{ fontSize: 10, opacity: 0.65 }}>{element.mass_number}</span>
+          <span style={{ fontSize: 10, opacity: 0.65 }}>{element.atomic_number}</span>
+        </div>
         <span style={{ fontWeight: 'bold', fontSize: 13 }}>{element.name}</span>
-        <span style={{ fontSize: 11, opacity: 0.7 }}>#{element.atomic_number} · {element.mass_number}</span>
       </div>
       <ElectronConfigDisplay config={element.electron_configuration} />
     </div>
