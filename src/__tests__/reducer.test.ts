@@ -97,6 +97,18 @@ describe('DROP_ELEMENT — second drop, non-ionic', () => {
   });
 });
 
+describe('DROP_ELEMENT — injected classifier overrides fallback', () => {
+  it('uses injected classify result instead of TS determineBonding', () => {
+    // Mg + Na are both metals → fallback would say Metallic.
+    // Injected classifier forces Covalent, proving injection wins.
+    const classify = () => 'Covalent' as const;
+    let s = canvasReducer(INITIAL_STATE, { type: 'DROP_ELEMENT', slot: 'A', zone: mgZone, classify });
+    s = canvasReducer(s, { type: 'DROP_ELEMENT', slot: 'B', zone: naZone, classify });
+    expect(s.bondingType).toBe('Covalent');
+    expect(s.canvasPhase).toBe('EXPLAINING');
+  });
+});
+
 describe('PICK_TM_CHARGE', () => {
   const explaining: CanvasState = {
     ...INITIAL_STATE, canvasPhase: 'EXPLAINING', bondingType: 'Ionic',

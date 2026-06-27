@@ -31,7 +31,7 @@ export interface CanvasState {
 }
 
 export type CanvasAction =
-  | { type: 'DROP_ELEMENT';       slot: Slot; zone: ZoneState }
+  | { type: 'DROP_ELEMENT';       slot: Slot; zone: ZoneState; classify?: (a: string, b: string) => BondingType | null }
   | { type: 'PICK_TM_CHARGE';     slot: Slot; charge: number }
   | { type: 'DISMISS_EXPLANATION' }
   | { type: 'REPLACE_ELEMENT';    slot: Slot }

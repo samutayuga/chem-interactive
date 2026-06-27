@@ -1,5 +1,6 @@
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useIonicCanvas } from './hooks';
+import { useClassify } from '../wasm/hooks';
 import { ElementTray } from '../tray/ElementTray';
 import { DropZone } from '../zones/DropZone';
 import { BridgeColumn } from '../bridge/BridgeColumn';
@@ -7,6 +8,7 @@ import type { ZoneState, Slot } from './types';
 
 export function IonicCanvas() {
   const { state, dispatch } = useIonicCanvas();
+  const classify = useClassify();
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
@@ -21,7 +23,7 @@ export function IonicCanvas() {
 
     if (state.canvasPhase === 'ANIMATING_CROSSOVER') return;
 
-    dispatch({ type: 'DROP_ELEMENT', slot, zone: zoneState });
+    dispatch({ type: 'DROP_ELEMENT', slot, zone: zoneState, classify });
   };
 
   return (

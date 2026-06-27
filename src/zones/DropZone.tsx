@@ -1,6 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIonicCanvas } from '../canvas/hooks';
+import { useClassify } from '../wasm/hooks';
 import type { Slot } from '../canvas/types';
 
 const SUPERSCRIPTS: Record<number, string> = {
@@ -25,6 +26,7 @@ const SLOT_COLORS: Record<Slot, { border: string; glow: string; label: string; t
 
 export function DropZone({ slot }: Props) {
   const { state, dispatch, selectedElement, clearSelection } = useIonicCanvas();
+  const classify = useClassify();
   const zone = slot === 'A' ? state.slotA : state.slotB;
   const { canvasPhase } = state;
 
@@ -42,7 +44,7 @@ export function DropZone({ slot }: Props) {
   function handleClick(e: React.MouseEvent) {
     e.stopPropagation();
     if (!selectedElement || dropDisabled) return;
-    dispatch({ type: 'DROP_ELEMENT', slot, zone: selectedElement });
+    dispatch({ type: 'DROP_ELEMENT', slot, zone: selectedElement, classify });
     clearSelection();
   }
 

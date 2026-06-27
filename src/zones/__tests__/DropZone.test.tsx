@@ -16,6 +16,10 @@ vi.mock('../../canvas/hooks', () => ({
   useIonicCanvas: vi.fn(),
 }));
 
+vi.mock('../../wasm/hooks', () => ({
+  useClassify: () => () => 'Ionic',
+}));
+
 import { useIonicCanvas } from '../../canvas/hooks';
 import { INITIAL_STATE } from '../../canvas/constants';
 import type { ZoneState } from '../../canvas/types';
@@ -49,7 +53,7 @@ describe('DropZone tap-to-place', () => {
     render(<DropZone slot="A" />);
     fireEvent.click(screen.getByText(/Tap to place Mg/));
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: 'DROP_ELEMENT', slot: 'A', zone: mgZone,
+      type: 'DROP_ELEMENT', slot: 'A', zone: mgZone, classify: expect.any(Function),
     });
     expect(mockClearSelection).toHaveBeenCalled();
   });
