@@ -18,6 +18,11 @@ vi.mock('../../canvas/hooks', () => ({
 
 vi.mock('../../wasm/hooks', () => ({
   useClassify: () => () => 'Ionic',
+  useWasm: () => ({}),
+}));
+
+vi.mock('../../wasm/chem', () => ({
+  productStateAt: (_pt: unknown, symbol: string) => (symbol === 'O' ? 'Gas' : 'Solid'),
 }));
 
 import { useIonicCanvas } from '../../canvas/hooks';
@@ -112,6 +117,14 @@ describe('DropZone tap-to-place', () => {
     mockCtx(null, { slotA: clIonized });
     render(<DropZone slot="A" />);
     expect(screen.getByText('Cl⁻')).toBeDefined();
+  });
+
+  it('renders a product-state flask when a zone is filled', () => {
+    mockCtx(null, { slotA: mgZone });
+    const { container } = render(<DropZone slot="A" />);
+    const svg = container.querySelector('svg[data-state]');
+    expect(svg).toBeTruthy();
+    expect(svg!.getAttribute('data-state')).toBe('Solid');
   });
 
   it('renders slot B colors and replace right label', () => {

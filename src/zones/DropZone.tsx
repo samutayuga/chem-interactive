@@ -1,7 +1,9 @@
 import { useDroppable } from '@dnd-kit/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIonicCanvas } from '../canvas/hooks';
-import { useClassify } from '../wasm/hooks';
+import { useClassify, useWasm } from '../wasm/hooks';
+import { productStateAt } from '../wasm/chem';
+import { PotionFlask, type FlaskState } from './PotionFlask';
 import type { Slot } from '../canvas/types';
 
 const SUPERSCRIPTS: Record<number, string> = {
@@ -27,7 +29,11 @@ const SLOT_COLORS: Record<Slot, { border: string; glow: string; label: string; t
 export function DropZone({ slot }: Props) {
   const { state, dispatch, selectedElement, clearSelection } = useIonicCanvas();
   const classify = useClassify();
+  const pt = useWasm();
   const zone = slot === 'A' ? state.slotA : state.slotB;
+  const flaskState: FlaskState | null = zone
+    ? (zone.isPolyatomic ? 'Aqueous' : (productStateAt(pt, zone.symbol, 298) as FlaskState | undefined) ?? 'Solid')
+    : null;
   const { canvasPhase } = state;
 
   const dropDisabled = canvasPhase === 'ANIMATING_CROSSOVER' || canvasPhase === 'EXPLAINING';
@@ -69,6 +75,12 @@ export function DropZone({ slot }: Props) {
         >
           ×
         </button>
+      )}
+
+      {zone && flaskState && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-40">
+          <PotionFlask state={flaskState} fill={0.6} />
+        </div>
       )}
 
       <AnimatePresence mode="wait">
