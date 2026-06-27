@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import { useAllElements } from '../wasm/hooks';
+import { useAllElements, usePolyatomicIons } from '../wasm/hooks';
 import { useIonicCanvas } from '../canvas/hooks';
-import { POLYATOMIC_IONS } from '../canvas/constants';
 import { ElementToken, PolyatomicToken } from './ElementToken';
 import type { BondHint } from './ElementToken';
 import { elementColor } from '../utils/elementColor';
@@ -35,6 +34,7 @@ export function ElementTray() {
   const [hoveredPeriod, setHoveredPeriod] = useState<number | null>(null);
   const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
   const all = useAllElements();
+  const polyatomicIons = usePolyatomicIons();
   const { state } = useIonicCanvas();
 
   const isDraggingDisabled = state.canvasPhase === 'ANIMATING_CROSSOVER';
@@ -213,7 +213,7 @@ export function ElementTray() {
 
         {tab === 'polyatomic' && (
           <div className="flex gap-2 flex-wrap">
-            {POLYATOMIC_IONS.map(ion => (
+            {polyatomicIons.map(ion => (
               <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled} />
             ))}
           </div>
