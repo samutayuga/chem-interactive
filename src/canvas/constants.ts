@@ -21,4 +21,6 @@ export const INITIAL_STATE: CanvasState = {
   bondingType: null,
   slotA:       null,
   slotB:       null,
+  quantityA:   null,
+  quantityB:   null,
 };

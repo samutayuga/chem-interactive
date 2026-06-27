@@ -257,6 +257,38 @@ describe('CROSSOVER_COMPLETE / RESET', () => {
   });
 });
 
+describe('stoichiometry phase and quantities', () => {
+  it('ENTER_STOICH from COMPLETE moves to STOICHIOMETRY', () => {
+    const s = canvasReducer(
+      { ...INITIAL_STATE, canvasPhase: 'COMPLETE', bondingType: 'Ionic' },
+      { type: 'ENTER_STOICH' },
+    );
+    expect(s.canvasPhase).toBe('STOICHIOMETRY');
+  });
+
+  it('SET_QUANTITY stores entry for slot A', () => {
+    const s = canvasReducer(INITIAL_STATE,
+      { type: 'SET_QUANTITY', slot: 'A', entry: { value: 2, unit: 'mole' } });
+    expect(s.quantityA).toEqual({ value: 2, unit: 'mole' });
+  });
+
+  it('SET_QUANTITY stores entry for slot B and clears with null', () => {
+    let s = canvasReducer(INITIAL_STATE,
+      { type: 'SET_QUANTITY', slot: 'B', entry: { value: 5, unit: 'mass' } });
+    expect(s.quantityB).toEqual({ value: 5, unit: 'mass' });
+    s = canvasReducer(s, { type: 'SET_QUANTITY', slot: 'B', entry: null });
+    expect(s.quantityB).toBeNull();
+  });
+
+  it('RESET clears quantities', () => {
+    const s = canvasReducer(
+      { ...INITIAL_STATE, quantityA: { value: 1, unit: 'mole' } },
+      { type: 'RESET' },
+    );
+    expect(s.quantityA).toBeNull();
+  });
+});
+
 describe('default', () => {
   it('unknown action → state unchanged', () => {
     expect(canvasReducer(INITIAL_STATE, { type: 'UNKNOWN' } as any)).toBe(INITIAL_STATE);

@@ -97,6 +97,14 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
     case 'CROSSOVER_COMPLETE':
       return { ...state, canvasPhase: 'COMPLETE' };
 
+    case 'ENTER_STOICH':
+      return { ...state, canvasPhase: 'STOICHIOMETRY' };
+
+    case 'SET_QUANTITY':
+      return action.slot === 'A'
+        ? { ...state, quantityA: action.entry }
+        : { ...state, quantityB: action.entry };
+
     case 'RESET':
       return { ...INITIAL_STATE };
 
