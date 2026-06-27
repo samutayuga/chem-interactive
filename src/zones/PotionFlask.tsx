@@ -6,10 +6,16 @@ interface Props {
   label?: string;
 }
 
-// Proportions adapted from the iOS PotionFlask.swift on a 100×140 viewBox:
-// narrow lip + neck flaring into a round bulb.
+// Exact port of iOS PotionFlaskShape.swift on a 100×140 viewBox (same ratios):
+// lipHalf .16w, neckHalf .11w, lipTopY .03h, rimY .07h, neckBottomY .40h,
+// bulbCenterY .66h, bulbRx .40w, bulbRy .30h, bottomY .97h, flare ctrl +.07h.
 const FLASK_PATH =
-  'M40 4 H60 L57 40 Q92 66 92 92 Q92 135 50 135 Q8 135 8 92 Q8 66 43 40 Z';
+  'M34 4.2 L39 9.8 L39 56 ' +
+  'C39 65.8 10 50.4 10 92.4 ' +
+  'C10 134.4 30 135.8 50 135.8 ' +
+  'C70 135.8 90 134.4 90 92.4 ' +
+  'C90 50.4 61 65.8 61 56 ' +
+  'L61 9.8 L66 4.2 Z';
 
 const FILL_COLOR: Record<FlaskState, string> = {
   Solid: 'var(--color-accent, #7c5cff)',
