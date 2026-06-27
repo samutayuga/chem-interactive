@@ -32,5 +32,16 @@ export default defineConfig({
         inline: ['react-transition-group', '@mui/material', '@mui/system', '@mui/utils', '@mui/base'],
       },
     },
+    coverage: {
+      provider: 'istanbul',
+      include: ['src/**'],
+      exclude: [
+        'src/wasm/pkg/**',        // generated wasm-bindgen glue
+        'src/**/__tests__/**',
+        'src/main.tsx',           // app bootstrap
+        'src/**/*.d.ts',
+        'src/vite-env.d.ts',
+      ],
+    },
   },
 });
