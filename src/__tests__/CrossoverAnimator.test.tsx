@@ -19,27 +19,27 @@ vi.mock('framer-motion', () => ({
 
 const mg: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2],
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2],
   derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
 };
 const cl: ZoneState = {
   symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 7, oxidationStates: [-1],
+  valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1],
   derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
 const ca: ZoneState = {
   symbol: 'Ca', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2],
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2],
   derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
 };
 const o: ZoneState = {
   symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 6, oxidationStates: [-2],
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2],
   derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
 };
 const oh: ZoneState = {
   symbol: 'OH', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
-  valenceElectrons: 0, oxidationStates: [-1],
+  valenceElectrons: 0, group: 0, period: 0, oxidationStates: [-1],
   derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
 
@@ -90,12 +90,12 @@ describe('CrossoverAnimator — cation subscript > 1 (Fe3+ + O2-)', () => {
   it('calls onComplete after full animation — both subscripts > 1', async () => {
     const fe3: ZoneState = {
       symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-      valenceElectrons: 2, oxidationStates: [3],
+      valenceElectrons: 2, group: 0, period: 0, oxidationStates: [3],
       derivedCharge: 3, wrongCount: 0, status: 'IONIZED',
     };
     const o2: ZoneState = {
       symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 6, oxidationStates: [-2],
+      valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2],
       derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
     };
     const onComplete = vi.fn();
@@ -139,7 +139,7 @@ describe('CrossoverAnimator subscript computation', () => {
   it('no brackets when anion sub === 1', () => {
     const na: ZoneState = {
       symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 1, oxidationStates: [1],
+      valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1],
       derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
     };
     const { queryByTestId } = render(

@@ -2,11 +2,12 @@ import { useDraggable } from '@dnd-kit/core';
 import Tooltip from '@mui/material/Tooltip';
 import { useRef, useState } from 'react';
 import type { WasmElement } from '@periodic-table';
-import { parseValenceElectrons } from '../utils/valence';
 import { elementClassColor } from '../utils/elementColor';
 import { POLYATOMIC_IONS } from '../canvas/constants';
 import type { ZoneState, ElementClass } from '../canvas/types';
 import { useIonicCanvas } from '../canvas/hooks';
+import { useWasm } from '../wasm/hooks';
+import { valenceOf } from '../wasm/chem';
 
 const ORBITAL_COLOR: Record<string, string> = {
   s: '#80cfff',
@@ -70,13 +71,15 @@ interface Props {
   bondHint?: BondHint;
 }
 
-export function makeZoneState(el: WasmElement): ZoneState {
+export function makeZoneState(el: WasmElement, valenceElectrons: number): ZoneState {
   return {
     symbol:           el.symbol,
     elementClass:     el.class as ElementClass,
     isPolyatomic:     false,
-    isTransition:     el.block === 'd',
-    valenceElectrons: parseValenceElectrons(el.electron_configuration, el.group),
+    isTransition:     el.block === 'd' || el.block === 'D',
+    valenceElectrons,
+    group:            el.group,
+    period:           el.period,
     oxidationStates:  el.oxidation_states,
     derivedCharge:    null,
     wrongCount:       0,
@@ -86,9 +89,11 @@ export function makeZoneState(el: WasmElement): ZoneState {
 
 export function ElementToken({ element, disabled = false, size = 'md', bondHint }: Props) {
   const { selectedElement, selectElement, clearSelection } = useIonicCanvas();
+  const pt = useWasm();
+  const valence = valenceOf(pt, element.symbol) ?? 0;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `element-${element.symbol}`,
-    data: { zoneState: makeZoneState(element) },
+    data: { zoneState: makeZoneState(element, valence) },
     disabled: disabled || bondHint === 'none',
   });
 
@@ -117,14 +122,14 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
     e.preventDefault();
     if (isInactive) return;
     if (isSelected) clearSelection();
-    else selectElement(makeZoneState(element));
+    else selectElement(makeZoneState(element, valence));
   }
 
   function handleClick(e: React.MouseEvent) {
     e.stopPropagation(); // prevent document click listener from clearing selection
     if (isInactive) return;
     if (isSelected) clearSelection();
-    else selectElement(makeZoneState(element));
+    else selectElement(makeZoneState(element, valence));
   }
 
   return (
@@ -190,6 +195,8 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
     isPolyatomic:     true,
     isTransition:     false,
     valenceElectrons: 0,
+    group:            0,
+    period:           0,
     oxidationStates:  [ion.charge],
     derivedCharge:    null,
     wrongCount:       0,

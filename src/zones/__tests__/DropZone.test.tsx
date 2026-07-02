@@ -4,7 +4,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { DropZone } from '../DropZone';
 
 vi.mock('framer-motion', () => ({
-  motion: { div: ({ children, ...rest }: any) => <div {...rest}>{children}</div> },
+  motion: new Proxy(
+    {},
+    {
+      get: (_t, tag: string) => ({ children, ...rest }: any) => {
+        const Tag = tag as any;
+        return <Tag {...rest}>{children}</Tag>;
+      },
+    },
+  ),
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
@@ -16,6 +24,15 @@ vi.mock('../../canvas/hooks', () => ({
   useIonicCanvas: vi.fn(),
 }));
 
+vi.mock('../../wasm/hooks', () => ({
+  useClassify: () => () => 'Ionic',
+  useWasm: () => ({}),
+}));
+
+vi.mock('../../wasm/chem', () => ({
+  productStateAt: (_pt: unknown, symbol: string) => (symbol === 'O' ? 'Gas' : 'Solid'),
+}));
+
 import { useIonicCanvas } from '../../canvas/hooks';
 import { INITIAL_STATE } from '../../canvas/constants';
 import type { ZoneState } from '../../canvas/types';
@@ -25,7 +42,7 @@ const mockClearSelection = vi.fn();
 
 const mgZone: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 function mockCtx(selectedElement: ZoneState | null, overrides: Record<string, unknown> = {}) {
@@ -47,9 +64,9 @@ describe('DropZone tap-to-place', () => {
   it('dispatches DROP_ELEMENT and clears selection when tapped with selectedElement', () => {
     mockCtx(mgZone);
     render(<DropZone slot="A" />);
-    fireEvent.click(screen.getByText(/Tap to place Mg/));
+    fireEvent.click(screen.getByLabelText(/Tap to place Mg/));
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: 'DROP_ELEMENT', slot: 'A', zone: mgZone,
+      type: 'DROP_ELEMENT', slot: 'A', zone: mgZone, classify: expect.any(Function),
     });
     expect(mockClearSelection).toHaveBeenCalled();
   });
@@ -57,7 +74,7 @@ describe('DropZone tap-to-place', () => {
   it('does not dispatch when no selectedElement', () => {
     mockCtx(null);
     render(<DropZone slot="A" />);
-    fireEvent.click(screen.getByText(/Drop here/));
+    fireEvent.click(screen.getByLabelText(/Drop here/));
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
@@ -71,7 +88,7 @@ describe('DropZone tap-to-place', () => {
   it('Replace button dispatches REPLACE_ELEMENT and stops propagation', () => {
     const naZone: ZoneState = {
       symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+      valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
     };
     mockCtx(null, { slotA: naZone });
     render(<DropZone slot="A" />);
@@ -83,7 +100,7 @@ describe('DropZone tap-to-place', () => {
   it('renders ionized format with single-charge sign (abs === 1)', () => {
     const naIonized: ZoneState = {
       symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 1, oxidationStates: [1], derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
     };
     mockCtx(null, { slotA: naIonized });
     render(<DropZone slot="A" />);
@@ -93,7 +110,7 @@ describe('DropZone tap-to-place', () => {
   it('renders ionized format with multi-charge superscript (abs > 1)', () => {
     const mgIonized: ZoneState = {
       symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 2, oxidationStates: [2], derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
     };
     mockCtx(null, { slotA: mgIonized });
     render(<DropZone slot="A" />);
@@ -103,17 +120,25 @@ describe('DropZone tap-to-place', () => {
   it('renders ionized format with negative charge', () => {
     const clIonized: ZoneState = {
       symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 7, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
     };
     mockCtx(null, { slotA: clIonized });
     render(<DropZone slot="A" />);
     expect(screen.getByText('Cl⁻')).toBeDefined();
   });
 
+  it('renders a product-state flask when a zone is filled', () => {
+    mockCtx(null, { slotA: mgZone });
+    const { container } = render(<DropZone slot="A" />);
+    const svg = container.querySelector('svg[data-state]');
+    expect(svg).toBeTruthy();
+    expect(svg!.getAttribute('data-state')).toBe('Solid');
+  });
+
   it('renders slot B colors and replace right label', () => {
     const naZone: ZoneState = {
       symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+      valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
     };
     mockCtx(null, { slotB: naZone });
     render(<DropZone slot="B" />);

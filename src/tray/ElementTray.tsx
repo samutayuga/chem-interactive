@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import { useAllElements } from '../wasm/hooks';
+import { useAllElements, usePolyatomicIons } from '../wasm/hooks';
 import { useIonicCanvas } from '../canvas/hooks';
-import { POLYATOMIC_IONS } from '../canvas/constants';
 import { ElementToken, PolyatomicToken } from './ElementToken';
 import type { BondHint } from './ElementToken';
 import { elementColor } from '../utils/elementColor';
@@ -35,6 +34,7 @@ export function ElementTray() {
   const [hoveredPeriod, setHoveredPeriod] = useState<number | null>(null);
   const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
   const all = useAllElements();
+  const polyatomicIons = usePolyatomicIons();
   const { state } = useIonicCanvas();
 
   const isDraggingDisabled = state.canvasPhase === 'ANIMATING_CROSSOVER';
@@ -88,19 +88,19 @@ export function ElementTray() {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto min-h-0 flex justify-center">
+      <div className="flex-1 overflow-auto min-h-0">
         {tab === 'elements' && (
-          <div className="flex flex-col gap-2 w-fit">
+          <div className="flex flex-col gap-2 w-fit mx-auto">
 
             {/* Main table */}
             <div className="flex items-start">
               {/* Period labels */}
-              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '2px', alignItems: 'center' }} className="mr-0 md:mr-1 hidden md:grid">
+              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '1px' }} className="mr-0 md:mr-1 md:py-0.5 hidden md:grid">
                 {Array.from({ length: N_PERIODS }, (_, i) => i + 1).map(p => (
                   <Tooltip key={p} title={`Period ${p}`} placement="left" arrow enterDelay={200}>
                     <div
                       className={[
-                        'hidden md:flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4',
+                        'hidden md:flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4 md:min-h-14',
                         hoveredPeriod === p ? 'text-white/80' : 'text-white/30',
                       ].join(' ')}
                     >
@@ -121,12 +121,12 @@ export function ElementTray() {
                 return (
                   <Tooltip key={group} title={<><strong>Group {group}</strong> — {category}</>} placement="top" arrow enterDelay={200}>
                     <div
-                      className="border-0 md:border md:border-transparent md:rounded-xl p-0 md:p-1 hover:md:border-white/25 transition-all duration-200 cursor-default"
+                      className="border-0 md:border md:border-transparent md:rounded-xl p-0 md:p-0.5 hover:md:border-white/25 transition-all duration-200 cursor-default"
                       style={{
                         display: 'grid',
                         gridTemplateColumns: 'auto',
                         gridTemplateRows: PERIOD_ROWS,
-                        gap: '2px',
+                        gap: '1px',
                         backgroundColor: color + (isHovered ? '28' : '12'),
                       }}
                       onMouseEnter={() => setHoveredGroup(group)}
@@ -173,7 +173,7 @@ export function ElementTray() {
                 {lanthanides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">6f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, auto)`, gap: '2px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, auto)`, gap: '1px' }}>
                       {lanthanides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
@@ -191,7 +191,7 @@ export function ElementTray() {
                 {actinides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">7f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, auto)`, gap: '2px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, auto)`, gap: '1px' }}>
                       {actinides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
@@ -212,8 +212,8 @@ export function ElementTray() {
         )}
 
         {tab === 'polyatomic' && (
-          <div className="flex gap-2 flex-wrap">
-            {POLYATOMIC_IONS.map(ion => (
+          <div className="flex gap-2 flex-wrap justify-center w-fit mx-auto">
+            {polyatomicIons.map(ion => (
               <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled} />
             ))}
           </div>

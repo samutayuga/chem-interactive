@@ -5,31 +5,31 @@ import type { CanvasState, ZoneState } from '../canvas/types';
 
 const mgZone: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const clZone: ZoneState = {
   symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 7, oxidationStates: [-1, 1, 3, 5, 7], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1, 1, 3, 5, 7], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const feZone: ZoneState = {
   symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-  valenceElectrons: 2, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const oZone: ZoneState = {
   symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 6, oxidationStates: [-2, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const caZone: ZoneState = {
   symbol: 'Ca', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const ohZone: ZoneState = {
   symbol: 'OH', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
-  valenceElectrons: 0, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 0, group: 0, period: 0, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const naZone: ZoneState = {
   symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 describe('DROP_ELEMENT — first drop', () => {
@@ -93,6 +93,18 @@ describe('DROP_ELEMENT — second drop, non-ionic', () => {
     let s = canvasReducer(INITIAL_STATE, { type: 'DROP_ELEMENT', slot: 'A', zone: mgZone });
     s = canvasReducer(s, { type: 'DROP_ELEMENT', slot: 'B', zone: naZone });
     expect(s.bondingType).toBe('Metallic');
+    expect(s.canvasPhase).toBe('EXPLAINING');
+  });
+});
+
+describe('DROP_ELEMENT — injected classifier overrides fallback', () => {
+  it('uses injected classify result instead of TS determineBonding', () => {
+    // Mg + Na are both metals → fallback would say Metallic.
+    // Injected classifier forces Covalent, proving injection wins.
+    const classify = () => 'Covalent' as const;
+    let s = canvasReducer(INITIAL_STATE, { type: 'DROP_ELEMENT', slot: 'A', zone: mgZone, classify });
+    s = canvasReducer(s, { type: 'DROP_ELEMENT', slot: 'B', zone: naZone, classify });
+    expect(s.bondingType).toBe('Covalent');
     expect(s.canvasPhase).toBe('EXPLAINING');
   });
 });
@@ -245,6 +257,38 @@ describe('CROSSOVER_COMPLETE / RESET', () => {
   });
 });
 
+describe('stoichiometry phase and quantities', () => {
+  it('ENTER_STOICH from COMPLETE moves to STOICHIOMETRY', () => {
+    const s = canvasReducer(
+      { ...INITIAL_STATE, canvasPhase: 'COMPLETE', bondingType: 'Ionic' },
+      { type: 'ENTER_STOICH' },
+    );
+    expect(s.canvasPhase).toBe('STOICHIOMETRY');
+  });
+
+  it('SET_QUANTITY stores entry for slot A', () => {
+    const s = canvasReducer(INITIAL_STATE,
+      { type: 'SET_QUANTITY', slot: 'A', entry: { value: 2, unit: 'mole' } });
+    expect(s.quantityA).toEqual({ value: 2, unit: 'mole' });
+  });
+
+  it('SET_QUANTITY stores entry for slot B and clears with null', () => {
+    let s = canvasReducer(INITIAL_STATE,
+      { type: 'SET_QUANTITY', slot: 'B', entry: { value: 5, unit: 'mass' } });
+    expect(s.quantityB).toEqual({ value: 5, unit: 'mass' });
+    s = canvasReducer(s, { type: 'SET_QUANTITY', slot: 'B', entry: null });
+    expect(s.quantityB).toBeNull();
+  });
+
+  it('RESET clears quantities', () => {
+    const s = canvasReducer(
+      { ...INITIAL_STATE, quantityA: { value: 1, unit: 'mole' } },
+      { type: 'RESET' },
+    );
+    expect(s.quantityA).toBeNull();
+  });
+});
+
 describe('default', () => {
   it('unknown action → state unchanged', () => {
     expect(canvasReducer(INITIAL_STATE, { type: 'UNKNOWN' } as any)).toBe(INITIAL_STATE);
@@ -255,7 +299,7 @@ describe('autoIonize — empty oxidationStates non-TM → DEDUCING', () => {
   it('non-TM with empty oxidationStates auto-ionises to DEDUCING', () => {
     const noOxZone: ZoneState = {
       symbol: 'X', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 0, oxidationStates: [], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+      valenceElectrons: 0, group: 0, period: 0, oxidationStates: [], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
     };
     const s = canvasReducer(
       { ...INITIAL_STATE, canvasPhase: 'SLOT_A_FILLED', slotA: { ...clZone, status: 'NEUTRAL' } },

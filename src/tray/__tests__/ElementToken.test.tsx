@@ -33,6 +33,14 @@ vi.mock('../../canvas/hooks', () => ({
   useIonicCanvas: vi.fn(),
 }));
 
+vi.mock('../../wasm/hooks', () => ({
+  useWasm: () => ({}),
+}));
+
+vi.mock('../../wasm/chem', () => ({
+  valenceOf: (_pt: unknown, symbol: string) => (symbol === 'Cl' ? 7 : 2),
+}));
+
 import { useIonicCanvas } from '../../canvas/hooks';
 
 const mockSelectElement  = vi.fn();
@@ -273,7 +281,7 @@ describe('ElementToken tap interaction', () => {
 
 describe('makeZoneState', () => {
   it('builds correct ZoneState from WasmElement', () => {
-    const z = makeZoneState(mgEl);
+    const z = makeZoneState(mgEl, 2);
     expect(z.symbol).toBe('Mg');
     expect(z.isPolyatomic).toBe(false);
     expect(z.isTransition).toBe(false);
@@ -282,7 +290,12 @@ describe('makeZoneState', () => {
 
   it('sets isTransition for d-block element', () => {
     const fe: WasmElement = { ...mgEl, symbol: 'Fe', block: 'd' };
-    expect(makeZoneState(fe).isTransition).toBe(true);
+    expect(makeZoneState(fe, 2).isTransition).toBe(true);
+  });
+
+  it('uses the wasm-provided valence electrons verbatim', () => {
+    expect(makeZoneState(clEl, 7).valenceElectrons).toBe(7);
+    expect(makeZoneState(mgEl, 99).valenceElectrons).toBe(99);
   });
 });
 

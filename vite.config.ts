@@ -6,6 +6,7 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 import path from 'path';
 
 export default defineConfig({
+  base: './',
   plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
   resolve: {
     alias: {
@@ -30,6 +31,17 @@ export default defineConfig({
       deps: {
         inline: ['react-transition-group', '@mui/material', '@mui/system', '@mui/utils', '@mui/base'],
       },
+    },
+    coverage: {
+      provider: 'istanbul',
+      include: ['src/**'],
+      exclude: [
+        'src/wasm/pkg/**',        // generated wasm-bindgen glue
+        'src/**/__tests__/**',
+        'src/main.tsx',           // app bootstrap
+        'src/**/*.d.ts',
+        'src/vite-env.d.ts',
+      ],
     },
   },
 });
