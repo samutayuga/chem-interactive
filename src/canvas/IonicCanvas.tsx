@@ -35,7 +35,7 @@ export function IonicCanvas() {
         </div>
 
         <div className="flex-1 flex flex-col">
-          <div className="h-2 shrink-0" />
+          <div className="h-20 shrink-0" />
           <div className="flex items-start overflow-y-auto justify-center">
             <div className="flex flex-row w-full max-w-5xl">
               <div className="w-1/3 px-1 md:px-3">

@@ -5,31 +5,31 @@ import type { CanvasState, ZoneState } from '../canvas/types';
 
 const mgZone: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const clZone: ZoneState = {
   symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 7, oxidationStates: [-1, 1, 3, 5, 7], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1, 1, 3, 5, 7], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const feZone: ZoneState = {
   symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-  valenceElectrons: 2, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const oZone: ZoneState = {
   symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 6, oxidationStates: [-2, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const caZone: ZoneState = {
   symbol: 'Ca', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const ohZone: ZoneState = {
   symbol: 'OH', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
-  valenceElectrons: 0, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 0, group: 0, period: 0, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const naZone: ZoneState = {
   symbol: 'Na', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 describe('DROP_ELEMENT — first drop', () => {
@@ -299,7 +299,7 @@ describe('autoIonize — empty oxidationStates non-TM → DEDUCING', () => {
   it('non-TM with empty oxidationStates auto-ionises to DEDUCING', () => {
     const noOxZone: ZoneState = {
       symbol: 'X', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 0, oxidationStates: [], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+      valenceElectrons: 0, group: 0, period: 0, oxidationStates: [], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
     };
     const s = canvasReducer(
       { ...INITIAL_STATE, canvasPhase: 'SLOT_A_FILLED', slotA: { ...clZone, status: 'NEUTRAL' } },

@@ -8,14 +8,16 @@ import { MetallicView } from './MetallicView';
 import { ExplanationModal } from './ExplanationModal';
 import { gcd } from '../utils/gcd';
 import type { ZoneState } from '../canvas/types';
-import { useWasm } from '../wasm/hooks';
+import { useWasm, useAllElements, usePolyatomicIons } from '../wasm/hooks';
 import { classifyReaction, solveStoich } from '../wasm/chem';
+import { ionicCompoundName, covalentCompoundName } from './compoundName';
 import type { WasmReaction } from '@periodic-table';
-import { ReactantQuantityPopover } from '../stoich/ReactantQuantityPopover';
 import { StoichResultPanel } from '../stoich/StoichResultPanel';
 import { ProductStateBadge, type ProductState } from '../stoich/ProductStateBadge';
 
-const fmt = (sym: string, n: number) => (n > 1 ? `${sym}${n}` : sym);
+const SUBSCRIPTS = '₀₁₂₃₄₅₆₇₈₉';
+const toSub = (n: number) => String(n).split('').map(d => SUBSCRIPTS[+d]).join('');
+const fmt = (sym: string, n: number) => (n > 1 ? `${sym}${toSub(n)}` : sym);
 
 function EnterStoichButton({ onClick }: { onClick: () => void }) {
   return (
@@ -42,7 +44,7 @@ function productInfo(
     const g = gcd(ca, cb) || 1;
     const subA = cb / g, subB = ca / g;
     const aPart = fmt(slotA.symbol, subA);
-    const bPart = slotB.isPolyatomic && subB > 1 ? `(${slotB.symbol})${subB}` : fmt(slotB.symbol, subB);
+    const bPart = slotB.isPolyatomic && subB > 1 ? `(${slotB.symbol})${toSub(subB)}` : fmt(slotB.symbol, subB);
     return { subA, subB, formula: aPart + bPart };
   }
   const formula = slotA.symbol === slotB.symbol ? slotA.symbol : `${slotA.symbol}·${slotB.symbol}`;
@@ -77,7 +79,12 @@ function ionicPair(slotA: ZoneState, slotB: ZoneState): { cation: ZoneState; ani
 export function BridgeColumn() {
   const { state, dispatch } = useIonicCanvas();
   const pt = useWasm();
+  const elements = useAllElements();
+  const ions = usePolyatomicIons();
   const { slotA, slotB, canvasPhase, bondingType } = state;
+
+  const nameOf = (symbol: string) => elements.find(e => e.symbol === symbol)?.name ?? symbol;
+  const ionNameOf = (symbol: string) => ions.find(i => i.symbol === symbol)?.name ?? symbol;
 
   const isAnimating       = canvasPhase === 'ANIMATING_CROSSOVER';
   const isCompleteIonic   = canvasPhase === 'COMPLETE' && bondingType === 'Ionic';
@@ -128,6 +135,9 @@ export function BridgeColumn() {
               className="flex flex-col items-center gap-3"
             >
               <span className="text-2xl font-bold text-white">{formulaDisplay}</span>
+              <span className="text-sm text-muted -mt-1">
+                {ionicCompoundName(cation, anion, nameOf, ionNameOf)}
+              </span>
               <BondingDiagram cation={cation} anion={anion} />
               <EnterStoichButton onClick={() => dispatch({ type: 'ENTER_STOICH' })} />
               <button
@@ -149,6 +159,9 @@ export function BridgeColumn() {
             className="flex flex-col items-center gap-3"
           >
             <CovalentView slotA={slotA} slotB={slotB} />
+            <span className="text-sm text-muted -mt-1">
+              {covalentCompoundName(slotA, slotB, nameOf)}
+            </span>
             <EnterStoichButton onClick={() => dispatch({ type: 'ENTER_STOICH' })} />
             <button
               onClick={() => dispatch({ type: 'RESET' })}
@@ -175,12 +188,11 @@ export function BridgeColumn() {
               className="flex flex-col items-center gap-3 w-full"
             >
               {reaction && <ProductStateBadge state={reaction.product_state as ProductState} />}
-              <div className="flex gap-3">
-                <ReactantQuantityPopover symbol={slotA.symbol} entry={state.quantityA}
-                  onChange={e => dispatch({ type: 'SET_QUANTITY', slot: 'A', entry: e })} />
-                <ReactantQuantityPopover symbol={slotB.symbol} entry={state.quantityB}
-                  onChange={e => dispatch({ type: 'SET_QUANTITY', slot: 'B', entry: e })} />
-              </div>
+              {!result && (
+                <p className="text-xs text-muted text-center max-w-[200px]">
+                  Tap the knob on each flask to set its amount (mol or g).
+                </p>
+              )}
               {result && (
                 <StoichResultPanel symbolA={slotA.symbol} symbolB={slotB.symbol}
                   productFormula={formula} result={result} />

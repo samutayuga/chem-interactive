@@ -16,6 +16,8 @@ function metal(symbol: string, valenceElectrons: number): ZoneState {
     isPolyatomic: false,
     isTransition: false,
     valenceElectrons,
+    group: 0,
+    period: 0,
     oxidationStates: [valenceElectrons],
     derivedCharge: null,
     wrongCount: 0,

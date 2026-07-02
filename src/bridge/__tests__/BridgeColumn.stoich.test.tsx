@@ -11,18 +11,18 @@ vi.mock('framer-motion', () => ({
 vi.mock('../../canvas/hooks', () => ({ useIonicCanvas: vi.fn() }));
 
 const pt = PeriodicTable.load();
-vi.mock('../../wasm/hooks', () => ({ useWasm: () => pt }));
+vi.mock('../../wasm/hooks', () => ({ useWasm: () => pt, useAllElements: () => pt.all(), usePolyatomicIons: () => pt.polyatomic_ions() }));
 
 import { useIonicCanvas } from '../../canvas/hooks';
 import { BridgeColumn } from '../BridgeColumn';
 
 const hZone: ZoneState = {
   symbol: 'H', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 1, oxidationStates: [1, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1, -1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const oZone: ZoneState = {
   symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 6, oxidationStates: [-2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 function mockState(overrides: Record<string, unknown>) {

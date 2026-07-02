@@ -27,6 +27,35 @@ function calcStoich(veA: number, veB: number): { nA: number; nB: number; bondOrd
   return { nA: bB / g, nB: bA / g, bondOrder: g };
 }
 
+// Two non-metals of the same group but different periods would, by the octet rule
+// alone, form a 1:1 double bond. Orbital-size mismatch makes that simple double bond
+// inefficient, so the structure resolves to one central + two peripheral atoms.
+// The "1:1 double bond" condition is only satisfiable by valence-6 (Group 16) atoms,
+// so groups 14/15/17 are excluded automatically — no hardcoded group check.
+function isOrbitalMismatchDoubleBond(
+  groupA: number, periodA: number, veA: number,
+  groupB: number, periodB: number, veB: number,
+): boolean {
+  if (groupA !== groupB || periodA === periodB) return false;
+  const base = calcStoich(veA, veB);
+  return base.nA === 1 && base.nB === 1 && base.bondOrder === 2;
+}
+
+// Covalent stoichiometry with the orbital-mismatch double-bond rule applied. When it
+// fires, the larger atom (higher period) is central (count 1) and the smaller atom is
+// peripheral (count 2), each bond a double bond. Otherwise pure octet calcStoich.
+function covalentStoich(
+  a: ZoneState, b: ZoneState,
+): { nA: number; nB: number; bondOrder: number } {
+  if (isOrbitalMismatchDoubleBond(a.group, a.period, a.valenceElectrons,
+                                  b.group, b.period, b.valenceElectrons)) {
+    return a.period > b.period
+      ? { nA: 1, nB: 2, bondOrder: 2 }
+      : { nA: 2, nB: 1, bondOrder: 2 };
+  }
+  return calcStoich(a.valenceElectrons, b.valenceElectrons);
+}
+
 // Lone pair dots: 2 dots side-by-side perpendicular to the given angle from (cx,cy)
 function LonePairDot({ cx, cy, angle, r, color }: {
   cx: number; cy: number; angle: number; r: number; color: string;
@@ -119,7 +148,7 @@ interface Props {
 }
 
 export function CovalentView({ slotA, slotB }: Props) {
-  const { nA, nB, bondOrder } = calcStoich(slotA.valenceElectrons, slotB.valenceElectrons);
+  const { nA, nB, bondOrder } = covalentStoich(slotA, slotB);
 
   // Determine central (count=1) and peripheral (count>1)
   const centralIsA = nA <= nB;

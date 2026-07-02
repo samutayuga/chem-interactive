@@ -3,13 +3,20 @@ import { render } from '@testing-library/react';
 import { CovalentView } from '../CovalentView';
 import type { ZoneState } from '../../canvas/types';
 
-function zone(symbol: string, valenceElectrons: number): ZoneState {
+function zone(
+  symbol: string,
+  valenceElectrons: number,
+  group = 0,
+  period = 0,
+): ZoneState {
   return {
     symbol,
     elementClass: 'NonMetal',
     isPolyatomic: false,
     isTransition: false,
     valenceElectrons,
+    group,
+    period,
     oxidationStates: [],
     derivedCharge: null,
     wrongCount: 0,
@@ -102,5 +109,14 @@ describe('CovalentView', () => {
     const { container, getByText } = render(<CovalentView slotA={zone('S', 6)} slotB={zone('O', 6)} />);
     expect(formulaText(container)).toBe('SO');
     expect(getByText(/Double covalent bond/)).toBeInTheDocument();
+  });
+
+  it('renders SO2 via orbital-mismatch rule (S group 16 period 3, O group 16 period 2)', () => {
+    // Same group (16), different periods -> orbital-mismatch double bond fires.
+    // Larger atom (S, period 3) is central (1), O is peripheral (2) -> SO2, not 1:1 S=O.
+    const { container } = render(
+      <CovalentView slotA={zone('S', 6, 16, 3)} slotB={zone('O', 6, 16, 2)} />,
+    );
+    expect(formulaText(container)).toBe('SO2');
   });
 });

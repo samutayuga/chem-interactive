@@ -63,7 +63,7 @@ const IONS = [
 function zone(o: Partial<ZoneState>): ZoneState {
   return {
     symbol: 'Z', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-    valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL', ...o,
+    valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL', ...o,
   };
 }
 

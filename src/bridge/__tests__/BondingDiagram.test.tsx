@@ -14,6 +14,8 @@ function ion(
     isPolyatomic: false,
     isTransition: false,
     valenceElectrons: 0,
+    group: 0,
+    period: 0,
     oxidationStates: [],
     derivedCharge,
     wrongCount: 0,

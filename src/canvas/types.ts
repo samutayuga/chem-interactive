@@ -20,6 +20,8 @@ export interface ZoneState {
   isPolyatomic:     boolean;
   isTransition:     boolean;
   valenceElectrons: number;
+  group:            number;
+  period:           number;
   oxidationStates:  number[];
   derivedCharge:    number | null;
   wrongCount:       number;

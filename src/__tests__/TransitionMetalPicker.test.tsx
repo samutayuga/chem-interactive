@@ -5,13 +5,13 @@ import type { ZoneState } from '../canvas/types';
 
 const feZone: ZoneState = {
   symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-  valenceElectrons: 2, oxidationStates: [2, 3],
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2, 3],
   derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
 };
 
 const osZone: ZoneState = {
   symbol: 'Os', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-  valenceElectrons: 6, oxidationStates: [8],
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [8],
   derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
 };
 

@@ -11,7 +11,7 @@ vi.mock('framer-motion', () => ({
 vi.mock('../../canvas/hooks', () => ({ useIonicCanvas: vi.fn() }));
 
 const pt = PeriodicTable.load();
-vi.mock('../../wasm/hooks', () => ({ useWasm: () => pt }));
+vi.mock('../../wasm/hooks', () => ({ useWasm: () => pt, useAllElements: () => pt.all(), usePolyatomicIons: () => pt.polyatomic_ions() }));
 
 // Stub the SVG child components to keep the test focused on BridgeColumn branches.
 vi.mock('../CrossoverAnimator', () => ({
@@ -49,7 +49,7 @@ import { BridgeColumn } from '../BridgeColumn';
 function zone(overrides: Partial<ZoneState>): ZoneState {
   return {
     symbol: 'X', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-    valenceElectrons: 1, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+    valenceElectrons: 1, group: 0, period: 0, oxidationStates: [1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
     ...overrides,
   };
 }
@@ -177,17 +177,16 @@ describe('BridgeColumn SHOWING_METALLIC phase', () => {
 });
 
 describe('BridgeColumn STOICHIOMETRY phase (productInfo branches + dispatch arrows)', () => {
-  it('ionic product (NaCl): badge, popovers dispatch SET_QUANTITY, reset dispatches', () => {
+  it('ionic product (NaCl): badge, prompts for flask quantities, reset dispatches', () => {
     const slotA = zone({ symbol: 'Na', elementClass: 'Metal', derivedCharge: 1, oxidationStates: [1] });
     const slotB = zone({ symbol: 'Cl', elementClass: 'NonMetal', derivedCharge: -1, oxidationStates: [-1] });
     mockState({ canvasPhase: 'STOICHIOMETRY', bondingType: 'Ionic', slotA, slotB, quantityA: null, quantityB: null });
     render(<BridgeColumn />);
     expect(screen.getByTestId('badge')).toBeInTheDocument(); // reaction present -> ProductStateBadge
 
-    fireEvent.click(screen.getByTestId('qty-Na'));
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SET_QUANTITY', slot: 'A', entry: { value: 1, unit: 'mole' } });
-    fireEvent.click(screen.getByTestId('qty-Cl'));
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SET_QUANTITY', slot: 'B', entry: { value: 1, unit: 'mole' } });
+    // Quantity entry moved to the flask knobs; the bridge prompts for it and shows no result yet.
+    expect(screen.getByText(/Tap the knob on each flask/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('stoich-result')).toBeNull();
     fireEvent.click(screen.getByText('Reset'));
     expect(dispatch).toHaveBeenCalledWith({ type: 'RESET' });
   });
@@ -203,7 +202,7 @@ describe('BridgeColumn STOICHIOMETRY phase (productInfo branches + dispatch arro
     render(<BridgeColumn />);
     const result = screen.getByTestId('stoich-result');
     expect(result).toBeInTheDocument();
-    expect(result.textContent).toContain('(Cl)2'); // polyatomic parenthesised, subscript 2
+    expect(result.textContent).toContain('(Cl)₂'); // polyatomic parenthesised, subscript 2
   });
 
   it('non-ionic/non-covalent fallback with different symbols (Fe·Cu), badge shown', () => {
