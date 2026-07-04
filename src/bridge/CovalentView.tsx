@@ -145,9 +145,11 @@ function angleTo(x1: number, y1: number, x2: number, y2: number) {
 interface Props {
   slotA: ZoneState;
   slotB: ZoneState;
+  /** IUPAC compound name shown under the formula (above the diagram). */
+  name?: string;
 }
 
-export function CovalentView({ slotA, slotB }: Props) {
+export function CovalentView({ slotA, slotB, name }: Props) {
   const { nA, nB, bondOrder } = covalentStoich(slotA, slotB);
 
   // Determine central (count=1) and peripheral (count>1)
@@ -228,6 +230,14 @@ export function CovalentView({ slotA, slotB }: Props) {
     <div className="flex flex-col items-center gap-2">
       <span className="text-[9px] text-white/35 uppercase tracking-widest">Covalent Bond</span>
 
+      <div className="flex flex-col items-center gap-0.5">
+        <span className="text-xl font-bold text-white">{formulaEl}</span>
+        {name && <span className="text-sm text-muted">{name}</span>}
+        <span className="text-[9px] text-white/40 uppercase tracking-widest">
+          {bondLabel} covalent bond · {bondOrder} shared pair{bondOrder > 1 ? 's' : ''} per bond
+        </span>
+      </div>
+
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
         {/* Draw all peripheral atoms and their bonds to central */}
         {peripheralPositions.map((p, i) => {
@@ -265,13 +275,6 @@ export function CovalentView({ slotA, slotB }: Props) {
           </text>
         )}
       </svg>
-
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-xl font-bold text-white">{formulaEl}</span>
-        <span className="text-[9px] text-white/40 uppercase tracking-widest">
-          {bondLabel} covalent bond · {bondOrder} shared pair{bondOrder > 1 ? 's' : ''} per bond
-        </span>
-      </div>
     </div>
   );
 }

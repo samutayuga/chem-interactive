@@ -158,10 +158,7 @@ export function BridgeColumn() {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center gap-3"
           >
-            <CovalentView slotA={slotA} slotB={slotB} />
-            <span className="text-sm text-muted -mt-1">
-              {covalentCompoundName(slotA, slotB, nameOf)}
-            </span>
+            <CovalentView slotA={slotA} slotB={slotB} name={covalentCompoundName(slotA, slotB, nameOf)} />
             <EnterStoichButton onClick={() => dispatch({ type: 'ENTER_STOICH' })} />
             <button
               onClick={() => dispatch({ type: 'RESET' })}

@@ -95,12 +95,12 @@ export function ElementTray() {
             {/* Main table */}
             <div className="flex items-start">
               {/* Period labels */}
-              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '1px' }} className="mr-0 md:mr-1 md:py-0.5 hidden md:grid">
+              <div style={{ display: 'grid', gridTemplateRows: PERIOD_ROWS, gap: '0px' }} className="mr-0 md:mr-1 md:py-0.5 hidden md:grid">
                 {Array.from({ length: N_PERIODS }, (_, i) => i + 1).map(p => (
                   <Tooltip key={p} title={`Period ${p}`} placement="left" arrow enterDelay={200}>
                     <div
                       className={[
-                        'hidden md:flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4 md:min-h-14',
+                        'hidden md:flex items-center justify-center text-[9px] font-semibold cursor-default transition-colors duration-150 w-4 md:min-h-11',
                         hoveredPeriod === p ? 'text-white/80' : 'text-white/30',
                       ].join(' ')}
                     >
@@ -121,12 +121,12 @@ export function ElementTray() {
                 return (
                   <Tooltip key={group} title={<><strong>Group {group}</strong> — {category}</>} placement="top" arrow enterDelay={200}>
                     <div
-                      className="border-0 md:border md:border-transparent md:rounded-xl p-0 md:p-0.5 hover:md:border-white/25 transition-all duration-200 cursor-default"
+                      className="border-0 md:border md:border-transparent md:rounded-xl p-0 hover:md:border-white/25 transition-all duration-200 cursor-default"
                       style={{
                         display: 'grid',
                         gridTemplateColumns: 'auto',
                         gridTemplateRows: PERIOD_ROWS,
-                        gap: '1px',
+                        gap: '0px',
                         backgroundColor: color + (isHovered ? '28' : '12'),
                       }}
                       onMouseEnter={() => setHoveredGroup(group)}
@@ -138,7 +138,7 @@ export function ElementTray() {
                           key={`row-${p}`}
                           style={{ gridColumn: 1, gridRow: p }}
                           className={[
-                            'min-h-8 md:min-h-14 rounded-lg transition-colors duration-150 pointer-events-none',
+                            'min-h-8 md:min-h-11 rounded-lg transition-colors duration-150 pointer-events-none',
                             hoveredPeriod === p ? 'bg-white/8' : '',
                           ].join(' ')}
                         />
@@ -173,7 +173,7 @@ export function ElementTray() {
                 {lanthanides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">6f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, auto)`, gap: '1px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${lanthanides.length}, auto)`, gap: '0px' }}>
                       {lanthanides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)
@@ -191,7 +191,7 @@ export function ElementTray() {
                 {actinides.length > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] text-white/30 w-4 text-right shrink-0">7f</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, auto)`, gap: '1px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${actinides.length}, auto)`, gap: '0px' }}>
                       {actinides.map(el => {
                         const hint = firstSlotClass
                           ? bondHint(firstSlotClass, el.class as ElementClass, el.category, firstIsPolyatomic)

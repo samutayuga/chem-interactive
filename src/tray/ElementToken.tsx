@@ -154,7 +154,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
           'group relative flex flex-col items-center justify-center',
           // responsive sizing: xs on mobile, sm on md+
           isSm
-            ? 'w-8 h-8 md:w-14 md:h-14 rounded-md border cursor-grab select-none'
+            ? 'w-8 h-8 md:w-11 md:h-11 rounded-md border cursor-grab select-none'
             : 'w-16 h-16 rounded-lg border cursor-grab select-none',
           'bg-surface transition-all duration-150',
           'hover:scale-110 hover:z-10 active:scale-125 active:z-20',
