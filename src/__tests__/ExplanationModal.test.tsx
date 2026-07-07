@@ -28,27 +28,27 @@ function mockState(overrides: Partial<CanvasState>) {
 
 const mgIonised: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: 2, wrongCount: 0, status: 'IONIZED',
 };
 const ohIonised: ZoneState = {
   symbol: 'OH', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
-  valenceElectrons: 0, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
+  valenceElectrons: 0, group: 0, period: 0, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
 const mgNeutral: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const clIonised: ZoneState = {
   symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 7, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
+  valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1], derivedCharge: -1, wrongCount: 0, status: 'IONIZED',
 };
 const feDeducing: ZoneState = {
   symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-  valenceElectrons: 2, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2, 3], derivedCharge: null, wrongCount: 0, status: 'DEDUCING',
 };
 const oNeutral: ZoneState = {
   symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 6, oxidationStates: [-2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 describe('ExplanationModal', () => {
@@ -163,11 +163,11 @@ describe('ExplanationModal', () => {
   it('shows formula preview for cation with subscript > 1 (Fe3+ + O2-)', () => {
     const feIonised: ZoneState = {
       symbol: 'Fe', elementClass: 'Metal', isPolyatomic: false, isTransition: true,
-      valenceElectrons: 2, oxidationStates: [3], derivedCharge: 3, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 2, group: 0, period: 0, oxidationStates: [3], derivedCharge: 3, wrongCount: 0, status: 'IONIZED',
     };
     const oIonised: ZoneState = {
       symbol: 'O', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-      valenceElectrons: 6, oxidationStates: [-2], derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 6, group: 0, period: 0, oxidationStates: [-2], derivedCharge: -2, wrongCount: 0, status: 'IONIZED',
     };
     mockState({
       canvasPhase: 'EXPLAINING', bondingType: 'Ionic',
@@ -189,7 +189,7 @@ describe('ExplanationModal', () => {
   it('shows polyatomic charge explanation for positive ion NH4+ (c > 0 → "+")', () => {
     const nh4Ionised: ZoneState = {
       symbol: 'NH4', elementClass: 'NonMetal', isPolyatomic: true, isTransition: false,
-      valenceElectrons: 0, oxidationStates: [1], derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
+      valenceElectrons: 0, group: 0, period: 0, oxidationStates: [1], derivedCharge: 1, wrongCount: 0, status: 'IONIZED',
     };
     mockState({
       canvasPhase: 'EXPLAINING', bondingType: 'Ionic',

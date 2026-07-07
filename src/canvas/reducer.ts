@@ -45,10 +45,14 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
         return { ...next, canvasPhase: 'SLOT_A_FILLED', bondingType: null };
       }
 
-      // Polyatomic ions always form ionic compounds
-      const bondingType = (newZone.isPolyatomic || other.isPolyatomic)
+      // Polyatomic ions always form ionic compounds. Otherwise prefer the
+      // injected wasm classifier (single source of truth); fall back to the
+      // local TS heuristic only when none is supplied (pure unit tests).
+      const bondingType: BondingType = (newZone.isPolyatomic || other.isPolyatomic)
         ? 'Ionic'
-        : determineBonding(newZone.elementClass, other.elementClass);
+        : action.classify
+          ? (action.classify(newZone.symbol, other.symbol) ?? 'Ionic')
+          : determineBonding(newZone.elementClass, other.elementClass);
 
       if (bondingType === 'Covalent' || bondingType === 'Metallic') {
         return { ...next, bondingType, canvasPhase: 'EXPLAINING' };
@@ -92,6 +96,14 @@ export function canvasReducer(state: CanvasState, action: CanvasAction): CanvasS
 
     case 'CROSSOVER_COMPLETE':
       return { ...state, canvasPhase: 'COMPLETE' };
+
+    case 'ENTER_STOICH':
+      return { ...state, canvasPhase: 'STOICHIOMETRY' };
+
+    case 'SET_QUANTITY':
+      return action.slot === 'A'
+        ? { ...state, quantityA: action.entry }
+        : { ...state, quantityB: action.entry };
 
     case 'RESET':
       return { ...INITIAL_STATE };

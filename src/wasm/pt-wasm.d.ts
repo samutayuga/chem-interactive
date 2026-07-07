@@ -1,3 +1,13 @@
 declare module '@periodic-table' {
-  export { PeriodicTable, WasmElement, WasmIsotope } from '../../../sam-periodic-table/pkg/pt-wasm/pt_wasm';
+  export {
+    PeriodicTable,
+    WasmElement,
+    WasmIsotope,
+    WasmElementClass,
+    WasmReaction,
+    WasmCovalentStoich,
+    WasmStoichResult,
+    WasmReactantInput,
+    WasmPolyatomicIon,
+  } from './pkg/pt_wasm';
 }

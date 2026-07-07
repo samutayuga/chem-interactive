@@ -7,11 +7,11 @@ import type { ZoneState } from '../types';
 
 const mgZone: ZoneState = {
   symbol: 'Mg', elementClass: 'Metal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 2, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 2, group: 0, period: 0, oxidationStates: [2], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 const clZone: ZoneState = {
   symbol: 'Cl', elementClass: 'NonMetal', isPolyatomic: false, isTransition: false,
-  valenceElectrons: 7, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
+  valenceElectrons: 7, group: 0, period: 0, oxidationStates: [-1], derivedCharge: null, wrongCount: 0, status: 'NEUTRAL',
 };
 
 function TestConsumer() {
