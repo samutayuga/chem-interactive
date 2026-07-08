@@ -28,7 +28,7 @@ export function IonicCanvas() {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-full">
 
         <div className="shrink-0 h-[45vh] md:h-[58vh]">
           <ElementTray />
