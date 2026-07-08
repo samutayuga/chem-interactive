@@ -50,7 +50,9 @@ export function reactionReducer(state: ReactionState, action: ReactionAction): R
       };
     }
     case 'SET_QTY':
-      return { ...state, [action.bin === 'A' ? 'qtyA' : 'qtyB']: action.entry };
+      // Null the result too: a stale solve (computed at extent 1 without a
+      // quantity) must not be shown as if it reflected the new quantity.
+      return { ...state, [action.bin === 'A' ? 'qtyA' : 'qtyB']: action.entry, result: null };
     case 'SET_RESULT':
       return { ...state, result: action.result };
     case 'RESET':

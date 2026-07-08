@@ -39,6 +39,12 @@ describe('reactionReducer', () => {
     const withResult = { ...INITIAL_REACTION_STATE, result: { feasible: true } as never };
     expect(reactionReducer(withResult, { type: 'PICK_SPECIES', zone: z('Na') }).result).toBeNull();
   });
+  it('clears the result when a quantity changes', () => {
+    const withResult = { ...INITIAL_REACTION_STATE, result: { feasible: true } as never };
+    const s = reactionReducer(withResult, { type: 'SET_QTY', bin: 'A', entry: { value: 2, unit: 'mole' } });
+    expect(s.qtyA).toEqual({ value: 2, unit: 'mole' });
+    expect(s.result).toBeNull();
+  });
   it('resets to the initial state', () => {
     let s = reactionReducer(INITIAL_REACTION_STATE, { type: 'PICK_SPECIES', zone: z('Na') });
     expect(reactionReducer(s, { type: 'RESET' })).toEqual(INITIAL_REACTION_STATE);
