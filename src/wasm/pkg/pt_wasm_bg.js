@@ -144,8 +144,31 @@ export class PeriodicTable {
     }
 }
 if (Symbol.dispose) PeriodicTable.prototype[Symbol.dispose] = PeriodicTable.prototype.free;
+
+/**
+ * Solve a compound reaction between two reactant zones (each 1-2 species —
+ * bare elements or polyatomic ions, identified by symbol). Loads the bundled
+ * periodic table on every call.
+ *
+ * `zone1`/`zone2` are accepted as `JsValue` (typed `WasmSpecies[]` in the
+ * generated `.d.ts`) because wasm-bindgen cannot bind `Vec<CustomStruct>`
+ * directly as a function parameter.
+ * @param {WasmSpecies[]} zone1
+ * @param {WasmSpecies[]} zone2
+ * @param {WasmQuantity | null} [q1]
+ * @param {WasmQuantity | null} [q2]
+ * @returns {WasmReactionResult}
+ */
+export function solve_compound_reaction(zone1, zone2, q1, q2) {
+    const ret = wasm.solve_compound_reaction(zone1, zone2, isLikeNone(q1) ? 0 : addToExternrefTable0(q1), isLikeNone(q2) ? 0 : addToExternrefTable0(q2));
+    return ret;
+}
 export function __wbg_Error_9dc85fe1bc224456(arg0, arg1) {
     const ret = Error(getStringFromWasm0(arg0, arg1));
+    return ret;
+}
+export function __wbg_Number_4779d427bae39753(arg0) {
+    const ret = Number(arg0);
     return ret;
 }
 export function __wbg_String_8564e559799eccda(arg0, arg1) {
@@ -178,6 +201,10 @@ export function __wbg___wbindgen_in_ce8569b2fc6f5088(arg0, arg1) {
     const ret = arg0 in arg1;
     return ret;
 }
+export function __wbg___wbindgen_is_function_147961669f068cd4(arg0) {
+    const ret = typeof(arg0) === 'function';
+    return ret;
+}
 export function __wbg___wbindgen_is_object_3a2c414391dbf751(arg0) {
     const val = arg0;
     const ret = typeof(val) === 'object' && val !== null;
@@ -208,6 +235,26 @@ export function __wbg___wbindgen_string_get_fa2687d531ed17a5(arg0, arg1) {
 export function __wbg___wbindgen_throw_bbadd78c1bac3a77(arg0, arg1) {
     throw new Error(getStringFromWasm0(arg0, arg1));
 }
+export function __wbg_call_91f00ddc43e01490() { return handleError(function (arg0, arg1) {
+    const ret = arg0.call(arg1);
+    return ret;
+}, arguments); }
+export function __wbg_done_6a8439e544ec6206(arg0) {
+    const ret = arg0.done;
+    return ret;
+}
+export function __wbg_get_44e98e27bda25b5b() { return handleError(function (arg0, arg1) {
+    const ret = Reflect.get(arg0, arg1);
+    return ret;
+}, arguments); }
+export function __wbg_get_unchecked_46e778e3cec74b5e(arg0, arg1) {
+    const ret = arg0[arg1 >>> 0];
+    return ret;
+}
+export function __wbg_get_with_ref_key_6412cf3094599694(arg0, arg1) {
+    const ret = arg0[arg1];
+    return ret;
+}
 export function __wbg_get_with_ref_key_f64427178466f623(arg0, arg1) {
     const ret = arg0[arg1];
     return ret;
@@ -232,11 +279,23 @@ export function __wbg_instanceof_Uint8Array_b6fe1ac89eba107e(arg0) {
     const ret = result;
     return ret;
 }
+export function __wbg_isArray_139f48e3c057ede8(arg0) {
+    const ret = Array.isArray(arg0);
+    return ret;
+}
 export function __wbg_isSafeInteger_c22ccb4af2201fe9(arg0) {
     const ret = Number.isSafeInteger(arg0);
     return ret;
 }
+export function __wbg_iterator_9b36cebf3be7b7cd() {
+    const ret = Symbol.iterator;
+    return ret;
+}
 export function __wbg_length_68a9d5278d084f4f(arg0) {
+    const ret = arg0.length;
+    return ret;
+}
+export function __wbg_length_fb04d16d7bdf6d4c(arg0) {
     const ret = arg0.length;
     return ret;
 }
@@ -252,6 +311,14 @@ export function __wbg_new_b06772b280cc6e52(arg0) {
     const ret = new Uint8Array(arg0);
     return ret;
 }
+export function __wbg_next_8cb028b6ba50743f() { return handleError(function (arg0) {
+    const ret = arg0.next();
+    return ret;
+}, arguments); }
+export function __wbg_next_cfd0b146c9538df8(arg0) {
+    const ret = arg0.next;
+    return ret;
+}
 export function __wbg_prototypesetcall_956c7493c68e29b4(arg0, arg1, arg2) {
     Uint8Array.prototype.set.call(getArrayU8FromWasm0(arg0, arg1), arg2);
 }
@@ -263,6 +330,10 @@ export function __wbg_set_da33c120a6584674(arg0, arg1, arg2) {
 }
 export function __wbg_set_f071dbb3bd088e0e(arg0, arg1, arg2) {
     arg0[arg1] = arg2;
+}
+export function __wbg_value_3d3defe09fb1ffca(arg0) {
+    const ret = arg0.value;
+    return ret;
 }
 export function __wbindgen_cast_0000000000000001(arg0) {
     // Cast intrinsic for `F64 -> Externref`.
@@ -286,6 +357,12 @@ export function __wbindgen_init_externref_table() {
 const PeriodicTableFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_periodictable_free(ptr, 1));
+
+function addToExternrefTable0(obj) {
+    const idx = wasm.__externref_table_alloc();
+    wasm.__wbindgen_externrefs.set(idx, obj);
+    return idx;
+}
 
 function debugString(val) {
     // primitive types
@@ -375,6 +452,15 @@ function getUint8ArrayMemory0() {
         cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
     }
     return cachedUint8ArrayMemory0;
+}
+
+function handleError(f, args) {
+    try {
+        return f.apply(this, args);
+    } catch (e) {
+        const idx = addToExternrefTable0(e);
+        wasm.__wbindgen_exn_store(idx);
+    }
 }
 
 function isLikeNone(x) {

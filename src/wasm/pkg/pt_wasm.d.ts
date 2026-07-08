@@ -30,6 +30,15 @@ export interface WasmElement {
     class: string;
 }
 
+export interface WasmElementRedox {
+    symbol: string;
+    before: number;
+    after: number;
+    change: string;
+    reactant_formula: string;
+    product_formula: string;
+}
+
 export interface WasmIsotope {
     mass_number: number;
     relative_mass: number;
@@ -41,6 +50,11 @@ export interface WasmPolyatomicIon {
     name: string;
     charge: number;
     formula: string;
+}
+
+export interface WasmQuantity {
+    value: number;
+    unit: string;
 }
 
 export interface WasmReactantInput {
@@ -58,6 +72,33 @@ export interface WasmReaction {
     metallic_electrons: number | undefined;
 }
 
+export interface WasmReactionResult {
+    feasible: boolean;
+    reaction_class: string;
+    reactants: WasmTerm[];
+    products: WasmTerm[];
+    limiting: string;
+    yields: [number, number][];
+    excess: [number, number];
+    messages: string[];
+    error: string | undefined;
+    redox: WasmRedox | undefined;
+}
+
+export interface WasmRedox {
+    is_redox: boolean;
+    oxidising_agent: string | undefined;
+    reducing_agent: string | undefined;
+    changes: WasmElementRedox[];
+    narrative: string[];
+}
+
+export interface WasmSpecies {
+    symbol: string;
+    is_polyatomic: boolean;
+    charge: number | undefined;
+}
+
 export interface WasmStoichResult {
     coeff_a: number;
     coeff_b: number;
@@ -69,6 +110,13 @@ export interface WasmStoichResult {
     excess_moles: number;
     excess_mass: number;
     diatomic_messages: string[];
+}
+
+export interface WasmTerm {
+    coeff: number;
+    formula: string;
+    molar_mass: number;
+    composition: [string, number][];
 }
 
 export type WasmElementClass = "Metal" | "NonMetal" | "Metalloid";
@@ -116,3 +164,14 @@ export class PeriodicTable {
      */
     valence_electrons(symbol: string): number | undefined;
 }
+
+/**
+ * Solve a compound reaction between two reactant zones (each 1-2 species —
+ * bare elements or polyatomic ions, identified by symbol). Loads the bundled
+ * periodic table on every call.
+ *
+ * `zone1`/`zone2` are accepted as `JsValue` (typed `WasmSpecies[]` in the
+ * generated `.d.ts`) because wasm-bindgen cannot bind `Vec<CustomStruct>`
+ * directly as a function parameter.
+ */
+export function solve_compound_reaction(zone1: WasmSpecies[], zone2: WasmSpecies[], q1?: WasmQuantity | null, q2?: WasmQuantity | null): WasmReactionResult;
