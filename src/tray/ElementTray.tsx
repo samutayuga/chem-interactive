@@ -5,7 +5,7 @@ import { useIonicCanvas } from '../canvas/hooks';
 import { ElementToken, PolyatomicToken } from './ElementToken';
 import type { BondHint } from './ElementToken';
 import { elementColor } from '../utils/elementColor';
-import type { ElementClass } from '../canvas/types';
+import type { ElementClass, ZoneState } from '../canvas/types';
 
 const N_PERIODS = 7;
 const GROUP_COLUMNS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18] as const;
@@ -29,7 +29,7 @@ function bondHint(
   return 'ionic';
 }
 
-export function ElementTray() {
+export function ElementTray({ onPick }: { onPick?: (z: ZoneState) => void } = {}) {
   const [tab, setTab] = useState<'elements' | 'polyatomic'>('elements');
   const [hoveredPeriod, setHoveredPeriod] = useState<number | null>(null);
   const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
@@ -155,7 +155,7 @@ export function ElementTray() {
                             onMouseEnter={() => setHoveredPeriod(el.period)}
                             onMouseLeave={() => setHoveredPeriod(null)}
                           >
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} onPick={onPick} />
                           </div>
                         );
                       })}
@@ -180,7 +180,7 @@ export function ElementTray() {
                           : null;
                         return (
                           <div key={el.symbol}>
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} onPick={onPick} />
                           </div>
                         );
                       })}
@@ -198,7 +198,7 @@ export function ElementTray() {
                           : null;
                         return (
                           <div key={el.symbol}>
-                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} />
+                            <ElementToken element={el} disabled={isDraggingDisabled} size="sm" bondHint={hint} onPick={onPick} />
                           </div>
                         );
                       })}
@@ -214,7 +214,7 @@ export function ElementTray() {
         {tab === 'polyatomic' && (
           <div className="flex gap-2 flex-wrap justify-center w-fit mx-auto">
             {polyatomicIons.map(ion => (
-              <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled} />
+              <PolyatomicToken key={ion.symbol} ion={ion} disabled={isDraggingDisabled} onPick={onPick} />
             ))}
           </div>
         )}
