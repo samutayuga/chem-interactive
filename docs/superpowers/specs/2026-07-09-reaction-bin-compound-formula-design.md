@@ -58,17 +58,23 @@ gating.
 
 ## Component / data flow
 
+**Decision:** compute the formula in `ReactionView` and pass a `compound:
+string | null` prop to `ReactantBin`. Keeps `ReactantBin` purely presentational
+(matches its existing all-props pattern) and unit-testable without a wasm mock.
+
+- new `binCompound(pt, species)` helper (in `src/reaction/binFormula.ts`):
+  - returns `null` unless `species.length === 2` and charges are resolved
+    (no species is a transition metal with `derivedCharge === null`).
+  - otherwise `classifyReaction(pt, species[0].symbol, species[1].symbol)` then
+    `productInfo(reaction, species[0], species[1]).formula`.
 - `ReactionView.tsx`
   - add `const pt = useWasm();`
-  - pass `pt` (or the derived `{ formula, ready }`) into each `ReactantBin`, OR
-    compute the formula in `ReactionView` and pass a `compound?: string` prop.
-    **Decision:** compute in `ReactantBin` to keep `ReactionView` thin; bin
-    already owns species rendering. Bin receives `pt` as a prop.
+  - `compound={binCompound(pt, state.reactantA)}` (and B) on each `ReactantBin`.
 - `ReactantBin.tsx`
-  - branch: `species.length === 2 && chargesResolved` → render compound chip via
-    `classifyReaction` + `productInfo`; else → existing chip list (+ TM picker).
-  - `chargesResolved` = no species is a transition metal with `derivedCharge`
-    still `null`.
+  - new prop `compound: string | null`.
+  - when `compound != null` → render one compound chip (formula) instead of the
+    per-species chip list. TM picker block unchanged (only shows while a TM
+    charge is unresolved, i.e. when `compound` is still `null`).
 - `speciesMap.ts` / `reactionReducer.ts` — unchanged. Underlying `ZoneState[]`
   still feeds `zoneToSpecies` → solver.
 
@@ -102,7 +108,8 @@ rendered formula.
 ## Files touched
 
 - new: `src/bridge/formula.ts` (+ test)
+- new: `src/reaction/binFormula.ts` (+ test)
 - edit: `src/bridge/BridgeColumn.tsx` (import from formula.ts)
-- edit: `src/reaction/ReactantBin.tsx` (compound chip branch)
-- edit: `src/reaction/ReactionView.tsx` (pass `pt`)
+- edit: `src/reaction/ReactantBin.tsx` (compound chip branch, `compound` prop)
+- edit: `src/reaction/ReactionView.tsx` (`useWasm` + `binCompound`)
 - tests: `ReactantBin.test.tsx`, `ReactionView.test.tsx`
