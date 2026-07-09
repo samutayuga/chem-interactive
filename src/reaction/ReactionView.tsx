@@ -8,12 +8,31 @@ import { zoneToSpecies, qtyToWasm } from './speciesMap';
 import { solveCompoundReaction } from '../wasm/reaction';
 import { useWasm } from '../wasm/hooks';
 import { binCompound } from './binFormula';
+import { binReactant } from './binReactant';
+import { diagnoseReaction } from './diagnose';
+import type { Bin } from './reactionReducer';
+
+const BINS: Bin[] = ['A', 'B'];
 
 export function ReactionView() {
   const [state, dispatch] = useReducer(reactionReducer, INITIAL_REACTION_STATE);
   const pt = useWasm();
   const canSolve = state.reactantA.length > 0 && state.reactantB.length > 0;
   const showQuantities = state.qtyA != null || state.qtyB != null;
+  const diagnosis = state.result
+    ? diagnoseReaction(pt, state.reactantA, state.reactantB, state.result)
+    : null;
+
+  const speciesOf = (bin: Bin) => (bin === 'A' ? state.reactantA : state.reactantB);
+
+  // Remove one species (index ≥ 0) or clear the whole bin (index === -1),
+  // deleting from the end so earlier indices stay valid mid-loop.
+  const removeFromBin = (bin: Bin, index: number) => {
+    if (index !== -1) return dispatch({ type: 'REMOVE_SPECIES', bin, index });
+    for (let i = speciesOf(bin).length - 1; i >= 0; i--) {
+      dispatch({ type: 'REMOVE_SPECIES', bin, index: i });
+    }
+  };
 
   function solve() {
     const result = solveCompoundReaction(
@@ -31,41 +50,20 @@ export function ReactionView() {
         <ElementTray onPick={z => dispatch({ type: 'PICK_SPECIES', zone: z })} />
       </div>
       <div className="flex-1 overflow-auto p-3 flex flex-col gap-3 max-w-3xl mx-auto w-full">
-        <div className="grid grid-cols-2 gap-3">
-          <ReactantBin
-            label="A" species={state.reactantA} active={state.activeBin === 'A'} qty={state.qtyA}
-            compound={binCompound(pt, state.reactantA)}
-            onActivate={() => dispatch({ type: 'SET_ACTIVE_BIN', bin: 'A' })}
-            onRemove={i => {
-              if (i === -1) {
-                // clear the whole bin: remove from the end so indices stay valid
-                for (let idx = state.reactantA.length - 1; idx >= 0; idx--) {
-                  dispatch({ type: 'REMOVE_SPECIES', bin: 'A', index: idx });
-                }
-              } else {
-                dispatch({ type: 'REMOVE_SPECIES', bin: 'A', index: i });
-              }
-            }}
-            onPickCharge={(i, c) => dispatch({ type: 'SET_TM_CHARGE', bin: 'A', index: i, charge: c })}
-            onQty={e => dispatch({ type: 'SET_QTY', bin: 'A', entry: e })}
-          />
-          <ReactantBin
-            label="B" species={state.reactantB} active={state.activeBin === 'B'} qty={state.qtyB}
-            compound={binCompound(pt, state.reactantB)}
-            onActivate={() => dispatch({ type: 'SET_ACTIVE_BIN', bin: 'B' })}
-            onRemove={i => {
-              if (i === -1) {
-                // clear the whole bin: remove from the end so indices stay valid
-                for (let idx = state.reactantB.length - 1; idx >= 0; idx--) {
-                  dispatch({ type: 'REMOVE_SPECIES', bin: 'B', index: idx });
-                }
-              } else {
-                dispatch({ type: 'REMOVE_SPECIES', bin: 'B', index: i });
-              }
-            }}
-            onPickCharge={(i, c) => dispatch({ type: 'SET_TM_CHARGE', bin: 'B', index: i, charge: c })}
-            onQty={e => dispatch({ type: 'SET_QTY', bin: 'B', entry: e })}
-          />
+        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">
+          {BINS.map(bin => (
+            <ReactantBin
+              key={bin}
+              label={bin} species={speciesOf(bin)} active={state.activeBin === bin}
+              qty={bin === 'A' ? state.qtyA : state.qtyB}
+              compound={binCompound(pt, speciesOf(bin))}
+              reactant={binReactant(pt, speciesOf(bin))}
+              onActivate={() => dispatch({ type: 'SET_ACTIVE_BIN', bin })}
+              onRemove={i => removeFromBin(bin, i)}
+              onPickCharge={(i, c) => dispatch({ type: 'SET_TM_CHARGE', bin, index: i, charge: c })}
+              onQty={e => dispatch({ type: 'SET_QTY', bin, entry: e })}
+            />
+          ))}
         </div>
         <div className="flex gap-2 justify-center">
           <button
@@ -77,7 +75,7 @@ export function ReactionView() {
             className="text-xs px-4 py-1 rounded-full border border-muted/60 text-muted hover:bg-muted/20 transition-colors"
           >Reset</button>
         </div>
-        {state.result && <ReactionResultPanel result={state.result} showQuantities={showQuantities} />}
+        {state.result && <ReactionResultPanel result={state.result} showQuantities={showQuantities} diagnosis={diagnosis} />}
       </div>
     </div>
   );

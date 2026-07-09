@@ -32,13 +32,51 @@ describe('ReactionView (real wasm)', () => {
     await u.click(screen.getByText('Cl'));                       // B ← Cl
 
     // bin A collapses its two species (Na + OH) into one compound chip
-    expect(await screen.findByText('NaOH')).toBeInTheDocument();
+    // NaOH now appears twice: the compound chip and the Ar/Mr mass line.
+    expect((await screen.findAllByText('NaOH')).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/[\d.]+ g\/mol/).length).toBeGreaterThan(0);
 
     await u.click(screen.getByText('Solve'));
 
     expect(await screen.findByText(/NaCl/)).toBeInTheDocument();
     expect(screen.getByText(/H₂O/)).toBeInTheDocument();
     expect(screen.getByText('DoubleDisplacement')).toBeInTheDocument();
+  }, 30000);
+
+  it('clears a compound bin when its chip × is clicked, and removes a lone species', async () => {
+    const u = userEvent.setup();
+    mount();
+    await screen.findByText('Na', {}, { timeout: 15000 });
+
+    // build the NaOH compound chip in bin A
+    await u.click(screen.getByText('Na'));
+    await u.click(screen.getByText('Polyatomic Ions'));
+    await u.click(screen.getByText(/OH/));
+    expect((await screen.findAllByText('NaOH')).length).toBeGreaterThan(0);
+
+    // clear whole compound bin via the compound chip × → onRemove(-1) loop
+    await u.click(screen.getByLabelText('clear compound'));
+    expect(screen.queryByText('NaOH')).not.toBeInTheDocument();
+
+    // add a single element, then remove it via its own × → onRemove(index)
+    await u.click(screen.getByText('Elements'));
+    await u.click(screen.getByText('Mg'));
+    await u.click(screen.getByLabelText('remove Mg'));
+    expect(screen.queryByLabelText('remove Mg')).not.toBeInTheDocument();
+  }, 30000);
+
+  it('blocks a noble gas on solve and suggests partners (Na + Ne)', async () => {
+    const u = userEvent.setup();
+    mount();
+    await screen.findByText('Na', {}, { timeout: 15000 });
+
+    await u.click(screen.getByText('Na'));                       // A ← Na
+    await u.click(screen.getByText(/Reactant B/));               // activate B
+    await u.click(screen.getByText('Ne'));                       // B ← Ne (noble gas)
+    await u.click(screen.getByText('Solve'));
+
+    expect(await screen.findByText(/Ne is a noble gas/)).toBeInTheDocument();
+    expect(screen.getByText('Try:')).toBeInTheDocument();
   }, 30000);
 
   it('solves Zn + CuSO₄ and reports the redox agents', async () => {

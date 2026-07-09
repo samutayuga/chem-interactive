@@ -21,6 +21,16 @@ it('renders the balanced equation and class', () => {
   expect(screen.getByText('DoubleDisplacement')).toBeInTheDocument();
 });
 
+it('shows the diagnosis card and hides the equation when a diagnosis is given', () => {
+  render(<ReactionResultPanel result={base} showQuantities
+    diagnosis={{ reason: "Ne is a noble gas — inert, it won't react.", hint: 'pair with a metal', suggestions: [{ symbol: 'Na' }, { symbol: 'Cl' }] }} />);
+  expect(screen.getByText(/Ne is a noble gas/)).toBeInTheDocument();
+  expect(screen.getByText('Na')).toBeInTheDocument();
+  expect(screen.getByText('Try:')).toBeInTheDocument();
+  // the (dubious) balanced equation is suppressed
+  expect(screen.queryByText(/NaOH \+ HCl/)).not.toBeInTheDocument();
+});
+
 it('hides yield rows when showQuantities is false', () => {
   render(<ReactionResultPanel result={base} showQuantities={false} />);
   expect(screen.queryByText(/mol/)).not.toBeInTheDocument();
