@@ -9,5 +9,12 @@ declare module '@periodic-table' {
     WasmStoichResult,
     WasmReactantInput,
     WasmPolyatomicIon,
+    solve_compound_reaction,
+    WasmSpecies,
+    WasmQuantity,
+    WasmReactionResult,
+    WasmTerm,
+    WasmRedox,
+    WasmElementRedox,
   } from './pkg/pt_wasm';
 }

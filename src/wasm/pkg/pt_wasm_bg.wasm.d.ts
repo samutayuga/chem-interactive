@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export const solve_compound_reaction: (a: any, b: any, c: number, d: number) => any;
 export const __wbg_periodictable_free: (a: number, b: number) => void;
 export const periodictable_all: (a: number) => [number, number, number];
 export const periodictable_by_atomic_mass: (a: number, b: number, c: number) => any;
@@ -15,6 +16,8 @@ export const periodictable_state_at: (a: number, b: number, c: number, d: number
 export const periodictable_valence_electrons: (a: number, b: number, c: number) => number;
 export const __wbindgen_malloc: (a: number, b: number) => number;
 export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_exn_store: (a: number) => void;
+export const __externref_table_alloc: () => number;
 export const __wbindgen_externrefs: WebAssembly.Table;
 export const __externref_table_dealloc: (a: number) => void;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;

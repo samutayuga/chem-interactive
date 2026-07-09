@@ -69,6 +69,7 @@ interface Props {
   disabled?: boolean;
   size?: 'sm' | 'md';
   bondHint?: BondHint;
+  onPick?: (z: ZoneState) => void;
 }
 
 export function makeZoneState(el: WasmElement, valenceElectrons: number): ZoneState {
@@ -87,7 +88,7 @@ export function makeZoneState(el: WasmElement, valenceElectrons: number): ZoneSt
   };
 }
 
-export function ElementToken({ element, disabled = false, size = 'md', bondHint }: Props) {
+export function ElementToken({ element, disabled = false, size = 'md', bondHint, onPick }: Props) {
   const { selectedElement, selectElement, clearSelection } = useIonicCanvas();
   const pt = useWasm();
   const valence = valenceOf(pt, element.symbol) ?? 0;
@@ -121,6 +122,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
     if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) return;
     e.preventDefault();
     if (isInactive) return;
+    if (onPick) { onPick(makeZoneState(element, valence)); return; }
     if (isSelected) clearSelection();
     else selectElement(makeZoneState(element, valence));
   }
@@ -128,6 +130,7 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
   function handleClick(e: React.MouseEvent) {
     e.stopPropagation(); // prevent document click listener from clearing selection
     if (isInactive) return;
+    if (onPick) { onPick(makeZoneState(element, valence)); return; }
     if (isSelected) clearSelection();
     else selectElement(makeZoneState(element, valence));
   }
@@ -185,9 +188,10 @@ export function ElementToken({ element, disabled = false, size = 'md', bondHint 
 interface PolyTokenProps {
   ion: typeof POLYATOMIC_IONS[0];
   disabled?: boolean;
+  onPick?: (z: ZoneState) => void;
 }
 
-export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
+export function PolyatomicToken({ ion, disabled = false, onPick }: PolyTokenProps) {
   const { selectedElement, selectElement, clearSelection } = useIonicCanvas();
   const zoneState: ZoneState = {
     symbol:           ion.symbol,
@@ -224,6 +228,7 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
     if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) return;
     e.preventDefault();
     if (disabled) return;
+    if (onPick) { onPick(zoneState); return; }
     if (isSelected) clearSelection();
     else selectElement(zoneState);
   }
@@ -231,6 +236,7 @@ export function PolyatomicToken({ ion, disabled = false }: PolyTokenProps) {
   function handleClick(e: React.MouseEvent) {
     e.stopPropagation();
     if (disabled) return;
+    if (onPick) { onPick(zoneState); return; }
     if (isSelected) clearSelection();
     else selectElement(zoneState);
   }

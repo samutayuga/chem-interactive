@@ -5,5 +5,5 @@ import { __wbg_set_wasm } from "./pt_wasm_bg.js";
 __wbg_set_wasm(wasm);
 wasm.__wbindgen_start();
 export {
-    PeriodicTable
+    PeriodicTable, solve_compound_reaction
 } from "./pt_wasm_bg.js";
