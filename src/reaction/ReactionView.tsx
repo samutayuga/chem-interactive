@@ -30,14 +30,14 @@ export function ReactionView() {
       <div className="flex-1 overflow-auto p-3 flex flex-col gap-3 max-w-3xl mx-auto w-full">
         <div className="grid grid-cols-2 gap-3">
           <ReactantBin
-            label="A" species={state.reactantA} active={state.activeBin === 'A'} qty={state.qtyA}
+            label="A" species={state.reactantA} active={state.activeBin === 'A'} qty={state.qtyA} compound={null}
             onActivate={() => dispatch({ type: 'SET_ACTIVE_BIN', bin: 'A' })}
             onRemove={i => dispatch({ type: 'REMOVE_SPECIES', bin: 'A', index: i })}
             onPickCharge={(i, c) => dispatch({ type: 'SET_TM_CHARGE', bin: 'A', index: i, charge: c })}
             onQty={e => dispatch({ type: 'SET_QTY', bin: 'A', entry: e })}
           />
           <ReactantBin
-            label="B" species={state.reactantB} active={state.activeBin === 'B'} qty={state.qtyB}
+            label="B" species={state.reactantB} active={state.activeBin === 'B'} qty={state.qtyB} compound={null}
             onActivate={() => dispatch({ type: 'SET_ACTIVE_BIN', bin: 'B' })}
             onRemove={i => dispatch({ type: 'REMOVE_SPECIES', bin: 'B', index: i })}
             onPickCharge={(i, c) => dispatch({ type: 'SET_TM_CHARGE', bin: 'B', index: i, charge: c })}

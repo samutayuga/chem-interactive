@@ -7,6 +7,7 @@ interface Props {
   species: ZoneState[];
   active: boolean;
   qty: ReactantEntry | null;
+  compound: string | null;
   onActivate: () => void;
   onRemove: (index: number) => void;
   onPickCharge: (index: number, charge: number) => void;
@@ -21,7 +22,7 @@ const STYLE = {
 
 const chargeLabel = (c: number) => `${c > 0 ? '+' : ''}${c}`;
 
-export function ReactantBin({ label, species, active, qty, onActivate, onRemove, onPickCharge, onQty }: Props) {
+export function ReactantBin({ label, species, active, qty, compound, onActivate, onRemove, onPickCharge, onQty }: Props) {
   const s = STYLE[label];
   return (
     <div
@@ -35,16 +36,27 @@ export function ReactantBin({ label, species, active, qty, onActivate, onRemove,
 
       <div className="flex gap-2 flex-wrap min-h-8 items-center">
         {species.length === 0 && <span className="text-xs text-white/30">tap tray to add (1–2 species)</span>}
-        {species.map((z, i) => (
-          <span key={`${z.symbol}-${i}`} className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-bg ${s.chip}`}>
-            {z.symbol}{z.derivedCharge != null ? chargeLabel(z.derivedCharge) : ''}
+        {compound != null ? (
+          <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-bg ${s.chip}`}>
+            {compound}
             <button
-              aria-label={`remove ${z.symbol}`}
-              onClick={e => { e.stopPropagation(); onRemove(i); }}
+              aria-label="clear compound"
+              onClick={e => { e.stopPropagation(); onRemove(-1); }}
               className="ml-0.5 text-bg/70 hover:text-bg"
             >×</button>
           </span>
-        ))}
+        ) : (
+          species.map((z, i) => (
+            <span key={`${z.symbol}-${i}`} className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-bg ${s.chip}`}>
+              {z.symbol}{z.derivedCharge != null ? chargeLabel(z.derivedCharge) : ''}
+              <button
+                aria-label={`remove ${z.symbol}`}
+                onClick={e => { e.stopPropagation(); onRemove(i); }}
+                className="ml-0.5 text-bg/70 hover:text-bg"
+              >×</button>
+            </span>
+          ))
+        )}
       </div>
 
       {species.map((z, i) =>
