@@ -19,7 +19,7 @@ export function productInfo(
     const cb = Math.abs(slotB.derivedCharge ?? slotB.oxidationStates[0] ?? 1);
     const g = gcd(ca, cb) || 1;
     const subA = cb / g, subB = ca / g;
-    const aPart = fmt(slotA.symbol, subA);
+    const aPart = slotA.isPolyatomic && subA > 1 ? `(${slotA.symbol})${toSub(subA)}` : fmt(slotA.symbol, subA);
     const bPart = slotB.isPolyatomic && subB > 1 ? `(${slotB.symbol})${toSub(subB)}` : fmt(slotB.symbol, subB);
     return { subA, subB, formula: aPart + bPart };
   }

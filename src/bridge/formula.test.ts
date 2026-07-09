@@ -32,4 +32,13 @@ describe('formula helpers', () => {
     const r = { bonding: 'Covalent', covalent: { n_a: 1, n_b: 2 } } as unknown as WasmReaction;
     expect(productInfo(r, z('C'), z('O')).formula).toBe('CO₂');
   });
+
+  it('ionic parenthesises a polyatomic cation with subscript > 1 → (NH₄)₂SO₄', () => {
+    const r = { bonding: 'Ionic' } as WasmReaction;
+    expect(productInfo(
+      r,
+      z('NH₄', { isPolyatomic: true, derivedCharge: 1 }),
+      z('SO₄', { isPolyatomic: true, derivedCharge: -2 }),
+    ).formula).toBe('(NH₄)₂SO₄');
+  });
 });

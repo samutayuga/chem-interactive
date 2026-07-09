@@ -30,6 +30,10 @@ describe('ReactionView (real wasm)', () => {
     await u.click(screen.getByText('Elements'));
     await u.click(screen.getByText('H'));                        // B ← H
     await u.click(screen.getByText('Cl'));                       // B ← Cl
+
+    // bin A collapses its two species (Na + OH) into one compound chip
+    expect(await screen.findByText('NaOH')).toBeInTheDocument();
+
     await u.click(screen.getByText('Solve'));
 
     expect(await screen.findByText(/NaCl/)).toBeInTheDocument();
